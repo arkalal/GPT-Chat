@@ -11,6 +11,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import styles from "./ChatInterface.module.scss";
 import { MessageLoading } from "../../components/ui/MessageLoading";
+import { ElegantBackground } from "../../components/ui/ElegantBackground";
 
 // Add OpenAI configuration
 const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -291,20 +292,33 @@ const ChatInterface = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.wrapper}>
+      <div className={styles.background_container}>
+        <ElegantBackground
+          badge={!isExpanded ? "AI Chat Assistant" : ""}
+          title1={!isExpanded ? "What can I" : ""}
+          title2={!isExpanded ? "help you ship?" : ""}
+          description={
+            !isExpanded
+              ? "Crafting exceptional digital experiences through innovative design and cutting-edge technology."
+              : ""
+          }
+        />
+      </div>
+      <div
+        className={`${styles.wrapper} ${
+          isExpanded ? styles.wrapper_expanded : ""
+        }`}
+      >
         {!isExpanded ? (
           <div className={styles.header}>
-            <motion.h1
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className={styles.header__title}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={styles.header__suggestions}
             >
-              What can I help you ship?
-            </motion.h1>
-            <div className={styles.header__suggestions}>
               {suggestions.map((suggestion) => (
                 <motion.button
-                  key={suggestion} // Use suggestion text as key since they're unique
+                  key={suggestion}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: suggestions.indexOf(suggestion) * 0.1 }}
@@ -314,50 +328,52 @@ const ChatInterface = () => {
                   {suggestion}
                 </motion.button>
               ))}
-            </div>
+            </motion.div>
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={styles["model-selector"]}
-          >
-            <button
-              className={styles["model-selector__button"]}
-              onClick={() => setShowModelDropdown(!showModelDropdown)}
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={styles["model-selector"]}
             >
-              <span className={styles["model-selector__icon"]}>
-                {selectedModel.icon}
-              </span>
-              <span className={styles["model-selector__name"]}>
-                {selectedModel.name}
-              </span>
-            </button>
+              <button
+                className={styles["model-selector__button"]}
+                onClick={() => setShowModelDropdown(!showModelDropdown)}
+              >
+                <span className={styles["model-selector__icon"]}>
+                  {selectedModel.icon}
+                </span>
+                <span className={styles["model-selector__name"]}>
+                  {selectedModel.name}
+                </span>
+              </button>
 
-            <AnimatePresence>
-              {showModelDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className={styles["model-selector__dropdown"]}
-                >
-                  {models.map((model) => (
-                    <button
-                      key={model.id}
-                      className={styles["model-selector__option"]}
-                      onClick={() => handleModelSelect(model)}
-                    >
-                      <span className={styles["model-selector__icon"]}>
-                        {model.icon}
-                      </span>
-                      <span>{model.name}</span>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+              <AnimatePresence>
+                {showModelDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className={styles["model-selector__dropdown"]}
+                  >
+                    {models.map((model) => (
+                      <button
+                        key={model.id}
+                        className={styles["model-selector__option"]}
+                        onClick={() => handleModelSelect(model)}
+                      >
+                        <span className={styles["model-selector__icon"]}>
+                          {model.icon}
+                        </span>
+                        <span>{model.name}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </>
         )}
 
         <div
