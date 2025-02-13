@@ -280,3 +280,109 @@ $transition-duration: 0.2s;
     transform: rotate(360deg);
   }
 }
+
+.codeBlock {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #282c34;
+}
+
+.codeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #21252b;
+  border-bottom: 1px solid #3e4451;
+}
+
+.language {
+  color: #abb2bf;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.copyButton {
+  background: transparent;
+  border: none;
+  color: #abb2bf;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #ffffff;
+  }
+}
+
+.inlineCode {
+  background: #282c34;
+  color: #e06c75;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: "Fira Code", monospace;
+  font-size: 0.9em;
+}
+
+// Markdown Styles
+.markdownH1 {
+  font-size: 2em;
+  margin: 1em 0 0.5em;
+  color: #e5e5e5;
+  border-bottom: 2px solid #3e4451;
+  padding-bottom: 0.3em;
+}
+
+.markdownH2 {
+  font-size: 1.5em;
+  margin: 1em 0 0.5em;
+  color: #e5e5e5;
+}
+
+.markdownH3 {
+  font-size: 1.25em;
+  margin: 1em 0 0.5em;
+  color: #e5e5e5;
+}
+
+.markdownP {
+  margin: 1em 0;
+  line-height: 1.6;
+}
+
+.markdownUl,
+.markdownOl {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.markdownLi {
+  margin: 0.5em 0;
+  line-height: 1.6;
+}
+
+.markdownBlockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid #3e4451;
+  background: rgba(62, 68, 81, 0.2);
+  color: #abb2bf;
+}
+
+// Enhance existing chat content styles
+.chat__content {
+  &--assistant {
+    pre {
+      margin: 0;
+
+      div {
+        margin: 0 !important;
+        border-radius: 0 !important;
+      }
+    }
+  }
+}

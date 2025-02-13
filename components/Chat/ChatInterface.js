@@ -2,9 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiSend } from "react-icons/fi";
+import { FiSend, FiCopy } from "react-icons/fi";
 import { BsRobot } from "react-icons/bs";
 import { FaSpinner } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import styles from "./ChatInterface.module.scss";
 import { MessageLoading } from "../../components/ui/MessageLoading";
 
@@ -23,6 +27,82 @@ const models = [
   { id: "gemini-pro", name: "Gemini Pro", icon: "💫", provider: "GOOGLE" },
   { id: "deepseek-coder", name: "Deepseek", icon: "🔍", provider: "DEEPSEEK" },
 ];
+
+const FormattedContent = ({ content }) => {
+  const copyToClipboard = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error("Failed to copy code:", err);
+    }
+  };
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        code({ node, inline, className, children, ...props }) {
+          const match = /language-(\w+)/.exec(className || "");
+          const code = String(children).replace(/\n$/, "");
+
+          if (!inline && match) {
+            return (
+              <div className={styles.codeBlock}>
+                <div className={styles.codeHeader}>
+                  <span className={styles.language}>{match[1]}</span>
+                  <button
+                    className={styles.copyButton}
+                    onClick={() => copyToClipboard(code)}
+                  >
+                    <FiCopy />
+                  </button>
+                </div>
+                <SyntaxHighlighter
+                  style={oneDark}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                >
+                  {code}
+                </SyntaxHighlighter>
+              </div>
+            );
+          }
+          return inline ? (
+            <code className={styles.inlineCode} {...props}>
+              {children}
+            </code>
+          ) : (
+            <SyntaxHighlighter
+              style={oneDark}
+              language="text"
+              PreTag="div"
+              {...props}
+            >
+              {code}
+            </SyntaxHighlighter>
+          );
+        },
+        // Add custom styling for other markdown elements
+        h1: ({ children }) => <h1 className={styles.markdownH1}>{children}</h1>,
+        h2: ({ children }) => <h2 className={styles.markdownH2}>{children}</h2>,
+        h3: ({ children }) => <h3 className={styles.markdownH3}>{children}</h3>,
+        p: ({ children }) => <p className={styles.markdownP}>{children}</p>,
+        ul: ({ children }) => <ul className={styles.markdownUl}>{children}</ul>,
+        ol: ({ children }) => <ol className={styles.markdownOl}>{children}</ol>,
+        li: ({ children }) => <li className={styles.markdownLi}>{children}</li>,
+        blockquote: ({ children }) => (
+          <blockquote className={styles.markdownBlockquote}>
+            {children}
+          </blockquote>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
+};
 
 const ChatInterface = () => {
   const [input, setInput] = useState("");
@@ -309,7 +389,7 @@ const ChatInterface = () => {
                       : styles["chat__content--assistant"]
                   }`}
                 >
-                  {message.content}
+                  <FormattedContent content={message.content} />
                 </div>
               </motion.div>
             ))}
