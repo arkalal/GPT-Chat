@@ -6,6 +6,7 @@ import { FiSend } from "react-icons/fi";
 import { BsRobot } from "react-icons/bs";
 import { FaSpinner } from "react-icons/fa";
 import styles from "./ChatInterface.module.scss";
+import { MessageLoading } from "../../components/ui/MessageLoading";
 
 // Add OpenAI configuration
 const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -323,48 +324,8 @@ const ChatInterface = () => {
                 <div className={styles.chat__avatar}>
                   <BsRobot />
                 </div>
-                <div className={styles.chat__dots}>
-                  <motion.span
-                    animate={{
-                      opacity: [0.4, 1, 0.4],
-                      y: [0, -4, 0],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    •
-                  </motion.span>
-                  <motion.span
-                    animate={{
-                      opacity: [0.4, 1, 0.4],
-                      y: [0, -4, 0],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.2,
-                    }}
-                  >
-                    •
-                  </motion.span>
-                  <motion.span
-                    animate={{
-                      opacity: [0.4, 1, 0.4],
-                      y: [0, -4, 0],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.4,
-                    }}
-                  >
-                    •
-                  </motion.span>
+                <div className={styles.chat__content}>
+                  <MessageLoading />
                 </div>
               </motion.div>
             )}
