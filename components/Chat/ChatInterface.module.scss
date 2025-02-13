@@ -40,7 +40,7 @@ $transition-duration: 0.2s;
 // Component Styles
 .container {
   min-height: 100vh;
-  background: $color-black;
+  background: #000000;
   color: white;
   display: flex;
   flex-direction: column;
@@ -162,15 +162,18 @@ $transition-duration: 0.2s;
   overflow-y: auto;
   margin-bottom: 1rem;
   width: 100%;
+  padding: 0 1rem;
 
   &__message {
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     width: 100%;
+    animation: messageSlide 0.3s ease-out;
 
     &--user {
       justify-content: flex-end;
+      flex-direction: row-reverse;
     }
 
     &--assistant {
@@ -182,21 +185,35 @@ $transition-duration: 0.2s;
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-    background: $color-purple;
+    background: #1a1b1e;
     @include flex-center;
+    border: 2px solid #2a2b2e;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      color: #6b6c70;
+    }
   }
 
   &__content {
-    max-width: 80%;
-    border-radius: $border-radius;
-    padding: 1rem;
+    max-width: 85%;
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    position: relative;
+    font-size: 0.9375rem;
+    line-height: 1.5;
 
     &--user {
-      background: $color-blue;
+      background: #1e1e1e;
+      color: white;
+      border-bottom-right-radius: 0.25rem;
     }
 
     &--assistant {
-      background: $color-gray-400;
+      background: #1e1e1e;
+      border-bottom-left-radius: 0.25rem;
+      color: rgba(255, 255, 255, 0.95);
     }
   }
 
@@ -205,12 +222,7 @@ $transition-duration: 0.2s;
     gap: 0.75rem;
     align-items: center;
     color: $color-gray-100;
-  }
-
-  &__dots {
-    display: flex;
-    gap: 0.25rem;
-    font-size: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
   }
 }
 
@@ -228,36 +240,38 @@ $transition-duration: 0.2s;
 
   &__field {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: $border-radius;
-    background: $color-gray-500;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    background: #1e1e1e;
     color: white;
-    border: 1px solid $color-gray-300;
+    border: none;
     transition: all $transition-duration;
+    font-size: 0.9375rem;
 
     &::placeholder {
-      color: $color-gray-100;
+      color: rgba(255, 255, 255, 0.5);
     }
 
     &:focus {
       outline: none;
-      border-color: $color-gray-200;
+      background: #252525;
     }
   }
 
   &__button {
     position: absolute;
-    right: 0.5rem;
+    right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     padding: 0.5rem;
-    border-radius: $border-radius;
-    color: $color-gray-100;
+    border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
     transition: all $transition-duration;
     cursor: pointer;
 
     &:hover {
-      background: $color-gray-400;
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
     }
 
     &:disabled {
@@ -283,106 +297,136 @@ $transition-duration: 0.2s;
 
 .codeBlock {
   position: relative;
-  margin: 1rem 0;
-  border-radius: 8px;
+  margin: 0;
+  background: #1a1d24;
   overflow: hidden;
-  background: #282c34;
+  border-radius: 0.8rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .codeHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background: #21252b;
+  padding: 0.75rem 1.25rem;
+  background: #2a2e35;
   border-bottom: 1px solid #3e4451;
 }
 
 .language {
-  color: #abb2bf;
-  font-size: 0.875rem;
+  color: #c5c8c6;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .copyButton {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #abb2bf;
+  color: #c5c8c6;
   cursor: pointer;
-  padding: 4px;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
   display: flex;
   align-items: center;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover {
+    background: rgba(255, 255, 255, 0.2);
     color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
 .inlineCode {
-  background: #282c34;
+  background: #2a2e35;
   color: #e06c75;
   padding: 0.2em 0.4em;
-  border-radius: 3px;
+  border-radius: 0.3rem;
   font-family: "Fira Code", monospace;
   font-size: 0.9em;
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
 
 // Markdown Styles
 .markdownH1 {
   font-size: 2em;
-  margin: 1em 0 0.5em;
-  color: #e5e5e5;
-  border-bottom: 2px solid #3e4451;
+  margin: 1.2em 0 0.6em;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  border-bottom: 2px solid rgba(#3e4451, 0.5);
   padding-bottom: 0.3em;
 }
 
 .markdownH2 {
   font-size: 1.5em;
   margin: 1em 0 0.5em;
-  color: #e5e5e5;
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: -0.025em;
 }
 
 .markdownH3 {
   font-size: 1.25em;
   margin: 1em 0 0.5em;
-  color: #e5e5e5;
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: -0.025em;
 }
 
 .markdownP {
   margin: 1em 0;
-  line-height: 1.6;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .markdownUl,
 .markdownOl {
   margin: 1em 0;
-  padding-left: 2em;
+  padding-left: 1.5em;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .markdownLi {
-  margin: 0.5em 0;
-  line-height: 1.6;
+  margin: 0.4em 0;
+  line-height: 1.7;
+  position: relative;
 }
 
 .markdownBlockquote {
-  margin: 1em 0;
-  padding: 0.5em 1em;
-  border-left: 4px solid #3e4451;
-  background: rgba(62, 68, 81, 0.2);
-  color: #abb2bf;
+  margin: 1.5em 0;
+  padding: 1em 1.5em;
+  border-left: 4px solid $color-purple;
+  background: rgba(62, 68, 81, 0.15);
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
 }
 
-// Enhance existing chat content styles
-.chat__content {
-  &--assistant {
-    pre {
-      margin: 0;
+// New Animations
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-      div {
-        margin: 0 !important;
-        border-radius: 0 !important;
-      }
-    }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
