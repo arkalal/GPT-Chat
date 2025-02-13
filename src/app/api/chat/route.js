@@ -55,6 +55,9 @@ export async function POST(request) {
 
     (async () => {
       try {
+        // Send initial empty chunk to signal stream start
+        await writeChunk("");
+
         switch (provider) {
           case "OPENAI": {
             const response = await openai.chat.completions.create({

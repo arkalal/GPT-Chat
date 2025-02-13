@@ -99,6 +99,7 @@ const ChatInterface = () => {
 
       const reader = response.body.getReader();
       let accumulatedContent = "";
+      let isFirstChunk = true;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -127,6 +128,12 @@ const ChatInterface = () => {
 
               if (parsed.error) {
                 throw new Error(parsed.error);
+              }
+
+              // Stop typing animation on first chunk
+              if (isFirstChunk) {
+                setIsTyping(false);
+                isFirstChunk = false;
               }
 
               const content = parsed.choices[0]?.delta?.content || "";

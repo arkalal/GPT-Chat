@@ -164,6 +164,21 @@ Current Status: Core features implemented. Next steps:
    - Example: Change `color.adjust($color-gray-500, $alpha: -0.9)` to `rgba($color-gray-500, 0.1)`
    - Update all instances of color.adjust() across SCSS files
 
+### Recently Fixed Issues:
+
+1. [x] Fixed React Key Prop Error in Chat Interface:
+   - Issue: Duplicate keys were being generated when adding messages and streaming responses
+   - Root Cause: Using timestamp alone for IDs and batch updates causing race conditions
+   - Solution Implemented:
+     - Created UUID-like unique IDs combining timestamp and random string
+     - Separated user and assistant message additions
+     - Added message only after response starts
+     - Implemented proper message update logic using array indices
+     - Added proper error state handling for missing messages
+     - Used AnimatePresence mode="sync" for better animation control
+     - Added unique key for typing indicator
+   - Impact: Resolved "Encountered two children with the same key" error and improved message handling reliability
+
 ### UI Updates Completed:
 
 - [x] Updated chat interface to match v0.dev design
