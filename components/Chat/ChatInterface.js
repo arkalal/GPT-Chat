@@ -105,6 +105,63 @@ const FormattedContent = ({ content }) => {
   );
 };
 
+const ChatMessage = ({ message, isTyping }) => {
+  const isUser = message.role === "user";
+
+  return (
+    <motion.div
+      className={`${styles.chat__message} ${
+        isUser
+          ? styles["chat__message--user"]
+          : styles["chat__message--assistant"]
+      }`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
+      <motion.div
+        className={styles.chat__avatar}
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        transition={{ duration: 0.2 }}
+      >
+        {isUser ? (
+          <motion.svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </motion.svg>
+        ) : (
+          <BsRobot />
+        )}
+      </motion.div>
+      <motion.div
+        className={`${styles.chat__content} ${
+          isUser
+            ? styles["chat__content--user"]
+            : styles["chat__content--assistant"]
+        }`}
+        whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      >
+        <FormattedContent content={message.content} />
+        {isTyping && (
+          <div className={styles["typing-indicator"]}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -117,12 +174,36 @@ const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
   };
 
+  // Scroll on new messages
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Scroll when content updates in streaming response
+  useEffect(() => {
+    const scrollOnUpdate = () => {
+      const chatContainer = document.querySelector(`.${styles.chat}`);
+      if (chatContainer) {
+        const isScrolledToBottom =
+          chatContainer.scrollHeight - chatContainer.clientHeight <=
+          chatContainer.scrollTop + 100;
+
+        if (isScrolledToBottom) {
+          scrollToBottom();
+        }
+      }
+    };
+
+    scrollOnUpdate();
+  }, [messages.length > 0 ? messages[messages.length - 1].content : null]);
 
   const handleSuggestionClick = (suggestion) => {
     setInput(suggestion);
@@ -312,18 +393,28 @@ const ChatInterface = () => {
         {!isExpanded ? (
           <div className={styles.header}>
             <motion.div
+              className={styles.header__description}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={styles.header__suggestions}
+              transition={{ duration: 0.6 }}
             >
-              {suggestions.map((suggestion) => (
+              <p>
+                Chat with our AI assistant powered by advanced language models.
+              </p>
+            </motion.div>
+            <motion.div
+              className={styles.header__suggestions}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              {suggestions.map((suggestion, index) => (
                 <motion.button
-                  key={suggestion}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: suggestions.indexOf(suggestion) * 0.1 }}
-                  onClick={() => handleSuggestionClick(suggestion)}
+                  key={index}
                   className={styles.suggestion}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {suggestion}
                 </motion.button>
@@ -380,79 +471,42 @@ const ChatInterface = () => {
           className={styles.chat}
           style={{ height: isExpanded ? "calc(100vh - 180px)" : 0 }}
         >
-          <AnimatePresence mode="sync">
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className={`${styles.chat__message} ${
-                  message.role === "user"
-                    ? styles["chat__message--user"]
-                    : styles["chat__message--assistant"]
-                }`}
-              >
-                {message.role === "assistant" && (
-                  <div className={styles.chat__avatar}>
-                    <BsRobot />
-                  </div>
-                )}
-                <div
-                  className={`${styles.chat__content} ${
-                    message.role === "user"
-                      ? styles["chat__content--user"]
-                      : styles["chat__content--assistant"]
-                  }`}
-                >
-                  <FormattedContent content={message.content} />
-                </div>
-              </motion.div>
+          <AnimatePresence>
+            {messages.map((message, index) => (
+              <ChatMessage
+                key={message.id || index}
+                message={message}
+                isTyping={isTyping && index === messages.length - 1}
+              />
             ))}
-            {isTyping && (
-              <motion.div
-                key="typing"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className={styles.chat__typing}
-              >
-                <div className={styles.chat__avatar}>
-                  <BsRobot />
-                </div>
-                <div className={styles.chat__content}>
-                  <MessageLoading />
-                </div>
-              </motion.div>
-            )}
-            <div ref={messagesEndRef} />
           </AnimatePresence>
+          <div ref={messagesEndRef} style={{ height: "20px" }} />
         </div>
 
         <motion.form
           onSubmit={handleSubmit}
-          className={styles["input-form"]}
+          className={styles["input-container"]}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <div className={styles["input-form__container"]}>
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask v0 a question..."
-              className={styles["input-form__field"]}
-            />
-            <button
-              type="submit"
-              className={styles["input-form__button"]}
-              disabled={!input.trim() || isLoading}
-            >
-              {isLoading ? <FaSpinner className={styles.spin} /> : <FiSend />}
-            </button>
-          </div>
+          <motion.textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Type your message..."
+            rows={1}
+            whileFocus={{ scale: 1.01 }}
+            transition={{ duration: 0.2 }}
+          />
+          <motion.button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isLoading ? <FaSpinner className="animate-spin" /> : <FiSend />}
+          </motion.button>
         </motion.form>
       </div>
     </div>
