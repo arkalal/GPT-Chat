@@ -158,6 +158,11 @@ Current Status: Core features implemented. Next steps:
 4. [ ] Update component imports to use SCSS modules
 5. [ ] Move all components to root components directory
 6. [ ] Update component imports across the application
+7. [ ] Fix SCSS color module usage:
+   - Replace `color.adjust()` with `rgba()` or SASS `lighten()`/`darken()` functions
+   - For transparency adjustments, use `rgba()` directly
+   - Example: Change `color.adjust($color-gray-500, $alpha: -0.9)` to `rgba($color-gray-500, 0.1)`
+   - Update all instances of color.adjust() across SCSS files
 
 ### UI Updates Completed:
 

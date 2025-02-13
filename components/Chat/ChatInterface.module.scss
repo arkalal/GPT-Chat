@@ -90,7 +90,7 @@ $transition-duration: 0.2s;
   &:hover {
     border-color: $color-gray-200;
     color: white;
-    background: color.adjust($color-gray-500, $alpha: -0.9);
+    background: rgba($color-gray-500, 0.1);
   }
 }
 
@@ -135,7 +135,7 @@ $transition-duration: 0.2s;
     border: 1px solid $color-gray-300;
     overflow: hidden;
     min-width: 160px;
-    box-shadow: 0 4px 6px color.adjust($color-black, $alpha: -0.9);
+    box-shadow: 0 4px 6px rgba($color-black, 0.1);
   }
 
   &__option {
