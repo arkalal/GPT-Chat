@@ -32,6 +32,7 @@ const ChatInterface = () => {
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const [isTyping, setIsTyping] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,11 +56,25 @@ const ChatInterface = () => {
 
     setIsExpanded(true);
     setIsLoading(true);
+    setIsTyping(true);
+
+    // Generate unique IDs using UUID-like format
+    const uniqueId = () =>
+      `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
     const userMessage = {
       role: "user",
       content: input,
-      id: `user-${Date.now()}`,
+      id: `user-${uniqueId()}`,
     };
+
+    const assistantMessage = {
+      role: "assistant",
+      content: "",
+      id: `assistant-${uniqueId()}`,
+    };
+
+    // Update messages with user message first
     setMessages((prev) => [...prev, userMessage]);
 
     try {
@@ -79,58 +94,97 @@ const ChatInterface = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const reader = response.body.getReader();
-      let assistantMessage = {
-        role: "assistant",
-        content: "",
-        id: `assistant-${Date.now()}`,
-      };
-
+      // Add assistant message only after response starts
       setMessages((prev) => [...prev, assistantMessage]);
+
+      const reader = response.body.getReader();
+      let accumulatedContent = "";
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
 
-        // Convert the chunk to text
+        if (done) {
+          setIsTyping(false);
+          setIsLoading(false);
+          break;
+        }
+
         const chunk = new TextDecoder().decode(value);
         const lines = chunk.split("\n").filter((line) => line.trim() !== "");
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const data = line.slice(6);
-            if (data === "[DONE]") continue;
+
+            if (data === "[DONE]") {
+              setIsTyping(false);
+              setIsLoading(false);
+              continue;
+            }
 
             try {
               const parsed = JSON.parse(data);
-              const content = parsed.choices[0]?.delta?.content || "";
-              assistantMessage.content += content;
 
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessage.id
-                    ? { ...msg, content: assistantMessage.content }
-                    : msg
-                )
-              );
+              if (parsed.error) {
+                throw new Error(parsed.error);
+              }
+
+              const content = parsed.choices[0]?.delta?.content || "";
+              accumulatedContent += content;
+
+              // Update message content using functional update
+              setMessages((prev) => {
+                const messageIndex = prev.findIndex(
+                  (msg) => msg.id === assistantMessage.id
+                );
+                if (messageIndex === -1) return prev;
+
+                const newMessages = [...prev];
+                newMessages[messageIndex] = {
+                  ...newMessages[messageIndex],
+                  content: accumulatedContent,
+                };
+                return newMessages;
+              });
             } catch (e) {
-              console.error("Error parsing chunk:", e);
+              if (e.message !== "Unexpected end of JSON input") {
+                throw e;
+              }
             }
           }
         }
       }
     } catch (error) {
       console.error("Error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
+
+      // Update or add error message
+      setMessages((prev) => {
+        const messageIndex = prev.findIndex(
+          (msg) => msg.id === assistantMessage.id
+        );
+        if (messageIndex === -1) {
+          // Add new error message if assistant message wasn't added
+          return [
+            ...prev,
+            {
+              ...assistantMessage,
+              content:
+                "I apologize, but I encountered an error. Please try again.",
+            },
+          ];
+        }
+        // Update existing assistant message
+        const newMessages = [...prev];
+        newMessages[messageIndex] = {
+          ...newMessages[messageIndex],
           content: "I apologize, but I encountered an error. Please try again.",
-          id: `assistant-${Date.now()}`,
-        },
-      ]);
-    } finally {
+        };
+        return newMessages;
+      });
+
+      setIsTyping(false);
       setIsLoading(false);
+    } finally {
       setInput("");
     }
   };
@@ -222,12 +276,13 @@ const ChatInterface = () => {
           className={styles.chat}
           style={{ height: isExpanded ? "calc(100vh - 180px)" : 0 }}
         >
-          <AnimatePresence>
+          <AnimatePresence mode="sync">
             {messages.map((message) => (
               <motion.div
-                key={message.id} // Use the unique message ID as key
+                key={message.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
                 className={`${styles.chat__message} ${
                   message.role === "user"
                     ? styles["chat__message--user"]
@@ -250,10 +305,12 @@ const ChatInterface = () => {
                 </div>
               </motion.div>
             ))}
-            {isLoading && (
+            {isTyping && (
               <motion.div
+                key="typing"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className={styles.chat__typing}
               >
                 <div className={styles.chat__avatar}>

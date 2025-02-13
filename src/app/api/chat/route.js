@@ -18,52 +18,102 @@ export async function POST(request) {
   try {
     const { messages, model, provider } = await request.json();
 
-    // Get the appropriate handler based on the provider
-    const handlers = {
-      OPENAI: handleOpenAIStream,
-      ANTHROPIC: handleAnthropicStream,
-      GOOGLE: handleGoogleStream,
-    };
-
-    const handler = handlers[provider];
-    if (!handler) {
-      return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
+    if (!messages || !model || !provider) {
+      return NextResponse.json(
+        { error: "Missing required parameters" },
+        { status: 400 }
+      );
     }
 
-    // Create a TransformStream to handle the streaming response
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
     const encoder = new TextEncoder();
 
-    // Process the stream
+    // Function to write a chunk to the stream
+    const writeChunk = async (content) => {
+      const chunk = {
+        id: `chunk-${Date.now()}`,
+        choices: [
+          {
+            delta: { content },
+            index: 0,
+          },
+        ],
+      };
+      await writer.write(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
+    };
+
+    // Function to handle errors
+    const writeError = async (error) => {
+      const errorChunk = {
+        error: error.message || "An error occurred",
+      };
+      await writer.write(
+        encoder.encode(`data: ${JSON.stringify(errorChunk)}\n\n`)
+      );
+    };
+
     (async () => {
       try {
-        const streamGenerator = handler(messages, model);
+        switch (provider) {
+          case "OPENAI": {
+            const response = await openai.chat.completions.create({
+              model,
+              messages,
+              stream: true,
+            });
 
-        for await (const chunk of streamGenerator) {
-          const payload = {
-            id: Date.now().toString(),
-            choices: [
-              {
-                delta: { content: chunk },
-                index: 0,
-              },
-            ],
-          };
+            for await (const chunk of response) {
+              if (chunk.choices[0]?.delta?.content) {
+                await writeChunk(chunk.choices[0].delta.content);
+              }
+            }
+            break;
+          }
 
-          // Write the chunk to the stream
-          await writer.write(
-            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
-          );
+          case "ANTHROPIC": {
+            const response = await anthropic.messages.create({
+              model,
+              messages: messages.map((msg) => ({
+                role: msg.role === "user" ? "user" : "assistant",
+                content: msg.content,
+              })),
+              stream: true,
+            });
+
+            for await (const chunk of response) {
+              if (chunk.type === "content_block_delta" && chunk.delta.text) {
+                await writeChunk(chunk.delta.text);
+              }
+            }
+            break;
+          }
+
+          case "GOOGLE": {
+            const genModel = genAI.getGenerativeModel({ model });
+            const chat = genModel.startChat({
+              history: messages.map((msg) => ({
+                role: msg.role,
+                parts: msg.content,
+              })),
+            });
+
+            const response = await chat.sendMessageStream(
+              messages[messages.length - 1].content
+            );
+            for await (const chunk of response.stream) {
+              if (chunk.text) {
+                await writeChunk(chunk.text);
+              }
+            }
+            break;
+          }
+
+          default:
+            throw new Error("Unsupported provider");
         }
       } catch (error) {
-        console.error("Streaming error:", error);
-        const errorPayload = {
-          error: "Streaming error occurred",
-        };
-        await writer.write(
-          encoder.encode(`data: ${JSON.stringify(errorPayload)}\n\n`)
-        );
+        await writeError(error);
       } finally {
         await writer.write(encoder.encode("data: [DONE]\n\n"));
         await writer.close();
@@ -83,59 +133,5 @@ export async function POST(request) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  }
-}
-
-async function* handleOpenAIStream(messages, model) {
-  const stream = await openai.chat.completions.create({
-    model,
-    messages,
-    stream: true,
-  });
-
-  for await (const chunk of stream) {
-    if (chunk.choices[0]?.delta?.content) {
-      yield chunk.choices[0].delta.content;
-    }
-  }
-}
-
-async function* handleAnthropicStream(messages, model) {
-  const formattedMessages = messages.map((msg) => ({
-    role: msg.role === "user" ? "user" : "assistant",
-    content: msg.content,
-  }));
-
-  const stream = await anthropic.messages.create({
-    model,
-    messages: formattedMessages,
-    stream: true,
-  });
-
-  for await (const chunk of stream) {
-    if (chunk.type === "content_block_delta" && chunk.delta.text) {
-      yield chunk.delta.text;
-    }
-  }
-}
-
-async function* handleGoogleStream(messages, model) {
-  const genModel = genAI.getGenerativeModel({ model });
-
-  const chat = genModel.startChat({
-    history: messages.map((msg) => ({
-      role: msg.role,
-      parts: msg.content,
-    })),
-  });
-
-  const result = await chat.sendMessageStream(
-    messages[messages.length - 1].content
-  );
-
-  for await (const chunk of result.stream) {
-    if (chunk.text) {
-      yield chunk.text;
-    }
   }
 }
