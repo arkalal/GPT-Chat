@@ -2,19 +2,61 @@
 
 ## Tech Stack
 
-- NextJS v15 - Pure JSX, JS and SCSS - FUll stack (My current project). No Typescript.
+- NextJS v15 - Pure JSX and SCSS - Full stack
 - MongoDB - mongoose schema
 - AI integration APIs - OpenAI, Anthropic, Google, Deepseek
-- UI (Framer motion, SCSS and other module as required)
+- UI - Framer Motion and SCSS modules
 - Authentication - NextAuth latest version v5
 - API Routes - NextJS v15
 - RAG integration - Langchain, Pinecone DB, OpenAI
-- react-icons for icons. You may also use other icons libraries as required.
+- react-icons for icons
 - Deployment - Vercel
 
 ## Development and Features
 
 APP Theme - Dark Mode.
+
+### Project Structure Requirements
+
+1. Component Organization:
+
+   - All components must be in the root `/components` directory
+   - No components should be in `src/components`
+   - Component structure:
+     ```
+     /components
+     ├── ui/           # Reusable UI components
+     ├── hooks/        # Custom hooks
+     ├── Chat/         # Chat-related components
+     └── Layout/       # Layout components
+     ```
+
+2. File Format Requirements:
+
+   - All files must be JavaScript (.js)
+   - Each component should have its own SCSS module
+   - Use BEM methodology for SCSS class naming
+   - No inline styles - all styling should be in SCSS modules
+
+3. Import Path Requirements:
+   - Use relative paths (../../) instead of @/ aliases
+   - All imports should reference the root components directory
+   - Example: `import Button from "../../components/ui/button"`
+
+### Dependencies and Configuration Requirements
+
+1. SCSS Configuration:
+
+   - Use `sass` version ^1.69.0 for modern SCSS support
+   - Use modern SCSS features and functions
+   - Implement proper SCSS module system
+   - Use SCSS variables for theme consistency
+
+2. Component Styling:
+   - Each component should have a corresponding .scss module file
+   - Use BEM methodology for class naming
+   - Implement proper dark theme using SCSS variables
+   - Use SCSS mixins for reusable styles
 
 ### Phase 1
 
@@ -31,10 +73,6 @@ APP Theme - Dark Mode.
 - There must be a API key button on the top left on the nav bar on the top on click of which a new page will open where user can enter the OpenAI, Anthropic, Google and Deepseek API key and save it. Currently the API keys are saved locally in the browser temporarily.
 - All the pages and the app should look extremely advanced, smooth with modern UI and slick animations in dark mode.
 
-### Phase 2
-
-## Development Progress
-
 ### Phase 1 Progress (In Development)
 
 1. Initial Setup
@@ -43,8 +81,30 @@ APP Theme - Dark Mode.
    - [x] Required dependencies installed
    - [x] Basic project structure setup
    - [x] Environment variables configuration
+   - [ ] Fix SCSS deprecation warnings
+   - [ ] Update Tailwind CSS configuration
+   - [ ] Convert all TypeScript files to JavaScript
+   - [ ] Move components to root components directory
 
-2. Chat Interface
+2. Component Migration Tasks:
+
+   - [ ] Move all components from src/components to /components
+   - [ ] Convert all .tsx files to .js
+   - [ ] Update import paths in all files
+   - [ ] Remove TypeScript types and interfaces
+   - [ ] Add JSDoc comments for documentation
+   - [ ] Test all components after migration
+
+3. UI Component Updates:
+
+   - [ ] Implement new Button component
+   - [ ] Implement new Input component
+   - [ ] Implement new Dropdown component
+   - [ ] Implement new Modal component
+   - [ ] Implement new Toast component
+   - [ ] Update all existing components to use new UI components
+
+4. Chat Interface
 
    - [x] Main chat UI implementation
    - [x] AI models dropdown integration
@@ -53,7 +113,7 @@ APP Theme - Dark Mode.
    - [x] Code block with syntax highlighting
    - [x] Copy functionality for code blocks
 
-3. Animations & UI
+5. Animations & UI
 
    - [x] Framer Motion integration
    - [x] Dark mode implementation
@@ -61,7 +121,7 @@ APP Theme - Dark Mode.
    - [x] Chat transitions
    - [x] Scroll animations
 
-4. API Integration
+6. API Integration
 
    - [x] OpenAI setup
    - [x] Anthropic integration
@@ -69,7 +129,7 @@ APP Theme - Dark Mode.
    - [x] API key management page
    - [x] Local storage for API keys
 
-5. Navigation & Layout
+7. Navigation & Layout
    - [x] Top navigation bar
    - [ ] Swipable sidebar
    - [x] Responsive design
@@ -90,10 +150,20 @@ Current Status: Core features implemented. Next steps:
 - [x] Removed unused UI directory
 - [x] Improved code organization and structure
 
-### Next Code Quality Tasks:
+### Current Issues to Fix:
 
-- [ ] Add proper TypeScript types (when migrating to TypeScript)
-- [ ] Implement error boundaries
-- [ ] Add proper loading states
-- [ ] Improve component documentation
-- [ ] Add unit tests
+1. [ ] Convert all styles to SCSS modules
+2. [ ] Implement proper SCSS variables for theming
+3. [ ] Create mixins for common styles
+4. [ ] Update component imports to use SCSS modules
+5. [ ] Move all components to root components directory
+6. [ ] Update component imports across the application
+
+### UI Updates Completed:
+
+- [x] Updated chat interface to match v0.dev design
+- [x] Implemented gradient title text using SCSS
+- [x] Added suggestion buttons with proper SCSS styling
+- [x] Improved input field design
+- [x] Enhanced overall spacing and layout
+- [x] Implemented modern dark theme using SCSS variables
