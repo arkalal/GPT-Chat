@@ -1,7 +1,7 @@
-import { OpenAI } from "openai";
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AI_PROVIDERS } from "../../../config/ai-config";
 
 // Initialize AI clients
 const openai = new OpenAI({
@@ -18,14 +18,6 @@ export async function POST(request) {
   try {
     const { messages, model, provider } = await request.json();
 
-    // Validate request
-    if (!messages || !model || !provider) {
-      return new Response(
-        JSON.stringify({ error: "Missing required parameters" }),
-        { status: 400 }
-      );
-    }
-
     // Get the appropriate handler based on the provider
     const handlers = {
       OPENAI: handleOpenAIStream,
@@ -35,19 +27,62 @@ export async function POST(request) {
 
     const handler = handlers[provider];
     if (!handler) {
-      return new Response(JSON.stringify({ error: "Invalid provider" }), {
-        status: 400,
-      });
+      return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
     }
 
-    // Create stream
-    const stream = await handler(messages, model);
-    return new Response(stream);
-  } catch (error) {
-    console.error("Chat API Error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
+    // Create a TransformStream to handle the streaming response
+    const stream = new TransformStream();
+    const writer = stream.writable.getWriter();
+    const encoder = new TextEncoder();
+
+    // Process the stream
+    (async () => {
+      try {
+        const streamGenerator = handler(messages, model);
+
+        for await (const chunk of streamGenerator) {
+          const payload = {
+            id: Date.now().toString(),
+            choices: [
+              {
+                delta: { content: chunk },
+                index: 0,
+              },
+            ],
+          };
+
+          // Write the chunk to the stream
+          await writer.write(
+            encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+          );
+        }
+      } catch (error) {
+        console.error("Streaming error:", error);
+        const errorPayload = {
+          error: "Streaming error occurred",
+        };
+        await writer.write(
+          encoder.encode(`data: ${JSON.stringify(errorPayload)}\n\n`)
+        );
+      } finally {
+        await writer.write(encoder.encode("data: [DONE]\n\n"));
+        await writer.close();
+      }
+    })();
+
+    return new NextResponse(stream.readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
     });
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 

@@ -7,6 +7,9 @@ import { BsRobot } from "react-icons/bs";
 import { FaSpinner } from "react-icons/fa";
 import styles from "./ChatInterface.module.scss";
 
+// Add OpenAI configuration
+const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+
 const suggestions = [
   "Generate a sticky header",
   "How can I structure LLM output?",
@@ -14,10 +17,10 @@ const suggestions = [
 ];
 
 const models = [
-  { id: "gpt-4", name: "GPT-4", icon: "🤖" },
-  { id: "claude-3", name: "Claude 3", icon: "🧠" },
-  { id: "gemini-pro", name: "Gemini Pro", icon: "💫" },
-  { id: "deepseek", name: "Deepseek", icon: "🔍" },
+  { id: "gpt-4", name: "GPT-4", icon: "🤖", provider: "OPENAI" },
+  { id: "claude-3-opus", name: "Claude 3", icon: "🧠", provider: "ANTHROPIC" },
+  { id: "gemini-pro", name: "Gemini Pro", icon: "💫", provider: "GOOGLE" },
+  { id: "deepseek-coder", name: "Deepseek", icon: "🔍", provider: "DEEPSEEK" },
 ];
 
 const ChatInterface = () => {
@@ -52,22 +55,84 @@ const ChatInterface = () => {
 
     setIsExpanded(true);
     setIsLoading(true);
-    setMessages((prev) => [...prev, { role: "user", content: input }]);
+    const userMessage = {
+      role: "user",
+      content: input,
+      id: `user-${Date.now()}`,
+    };
+    setMessages((prev) => [...prev, userMessage]);
 
-    // Simulate AI response - Replace with actual API call
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: input }],
+          model: selectedModel.id,
+          provider: selectedModel.provider,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      let assistantMessage = {
+        role: "assistant",
+        content: "",
+        id: `assistant-${Date.now()}`,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        // Convert the chunk to text
+        const chunk = new TextDecoder().decode(value);
+        const lines = chunk.split("\n").filter((line) => line.trim() !== "");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices[0]?.delta?.content || "";
+              assistantMessage.content += content;
+
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessage.id
+                    ? { ...msg, content: assistantMessage.content }
+                    : msg
+                )
+              );
+            } catch (e) {
+              console.error("Error parsing chunk:", e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content:
-            "This is a simulated response. Replace with actual API integration.",
+          content: "I apologize, but I encountered an error. Please try again.",
+          id: `assistant-${Date.now()}`,
         },
       ]);
+    } finally {
       setIsLoading(false);
-    }, 2000);
-
-    setInput("");
+      setInput("");
+    }
   };
 
   const handleModelSelect = (model) => {
@@ -95,12 +160,12 @@ const ChatInterface = () => {
               What can I help you ship?
             </motion.h1>
             <div className={styles.header__suggestions}>
-              {suggestions.map((suggestion, index) => (
+              {suggestions.map((suggestion) => (
                 <motion.button
-                  key={index}
+                  key={suggestion} // Use suggestion text as key since they're unique
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: suggestions.indexOf(suggestion) * 0.1 }}
                   onClick={() => handleSuggestionClick(suggestion)}
                   className={styles.suggestion}
                 >
@@ -158,9 +223,9 @@ const ChatInterface = () => {
           style={{ height: isExpanded ? "calc(100vh - 180px)" : 0 }}
         >
           <AnimatePresence>
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <motion.div
-                key={index}
+                key={message.id} // Use the unique message ID as key
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={`${styles.chat__message} ${
