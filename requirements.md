@@ -150,6 +150,11 @@ APP Theme - Dark Mode.
 5. [x] Fixed homepage layout with proper spacing
 6. [x] Added conditional rendering for chat/home states
 7. [x] Implemented proper z-indexing for all elements
+8. [x] Fixed chat bubble animations to remove blinking effect
+9. [x] Updated chat message hover effects for better stability
+10. [x] Improved dark theme consistency in chat interface
+11. [x] Optimized message transitions and animations
+12. [x] Enhanced chat bubble shadows and gradients
 
 ### Current Issues to Fix:
 
@@ -164,6 +169,10 @@ APP Theme - Dark Mode.
    - For transparency adjustments, use `rgba()` directly
    - Example: Change `color.adjust($color-gray-500, $alpha: -0.9)` to `rgba($color-gray-500, 0.1)`
    - Update all instances of color.adjust() across SCSS files
+8. [ ] Implement consistent animation timing across components
+9. [ ] Add proper transition states for all interactive elements
+10. [ ] Optimize backdrop blur performance
+11. [ ] Add fallback styles for browsers that don't support backdrop-filter
 
 ### Next Steps:
 
@@ -174,3 +183,6 @@ APP Theme - Dark Mode.
 5. Implement proper error messages for API failures
 6. Add user settings persistence
 7. Implement chat history storage
+8. Optimize chat message rendering performance
+9. Add proper scroll restoration
+10. Implement message grouping by time

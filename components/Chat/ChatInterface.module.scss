@@ -41,18 +41,6 @@ $transition-duration: 0.2s;
   color: transparent;
 }
 
-@keyframes floatAnimation {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
 @keyframes messageSlideIn {
   0% {
     opacity: 0;
@@ -283,9 +271,7 @@ $transition-duration: 0.2s;
     gap: 0.75rem;
     margin-bottom: 1.25rem;
     width: 100%;
-    animation: messageSlideIn 0.4s ease-out;
-    perspective: 1000px;
-    will-change: transform, opacity;
+    animation: messageSlideIn 0.4s ease-out forwards;
     transform-origin: bottom center;
 
     &--user {
@@ -295,10 +281,6 @@ $transition-duration: 0.2s;
 
     &--assistant {
       justify-content: flex-start;
-    }
-
-    &:hover {
-      animation: floatAnimation 3s ease-in-out infinite;
     }
   }
 
@@ -362,8 +344,8 @@ $transition-duration: 0.2s;
           rgba(30, 30, 30, 0.8)
         );
         border-color: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
     }
 
@@ -385,8 +367,8 @@ $transition-duration: 0.2s;
           rgba(35, 35, 35, 0.8)
         );
         border-color: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
     }
   }
