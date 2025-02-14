@@ -12,6 +12,8 @@ import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import styles from "./ChatInterface.module.scss";
 import { MessageLoading } from "../../components/ui/MessageLoading";
 import { ElegantBackground } from "../../components/ui/ElegantBackground";
+import { AI_PROVIDERS } from "../../src/config/ai-config";
+import React from "react";
 
 // Add OpenAI configuration
 const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -167,7 +169,10 @@ const ChatInterface = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(models[0]);
+  const [selectedProvider, setSelectedProvider] = useState("OPENAI");
+  const [selectedModel, setSelectedModel] = useState(
+    AI_PROVIDERS.OPENAI.models[0]
+  );
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -264,7 +269,7 @@ const ChatInterface = () => {
         body: JSON.stringify({
           messages: [{ role: "user", content: input }],
           model: selectedModel.id,
-          provider: selectedModel.provider,
+          provider: selectedProvider,
         }),
       });
 
@@ -374,7 +379,8 @@ const ChatInterface = () => {
     }
   };
 
-  const handleModelSelect = (model) => {
+  const handleModelSelect = (provider, model) => {
+    setSelectedProvider(provider);
     setSelectedModel(model);
     setShowModelDropdown(false);
   };
@@ -447,9 +453,10 @@ const ChatInterface = () => {
                 className={styles["model-selector__button"]}
                 onClick={() => setShowModelDropdown(!showModelDropdown)}
               >
-                <span className={styles["model-selector__icon"]}>
-                  {selectedModel.icon}
-                </span>
+                {React.createElement(AI_PROVIDERS[selectedProvider].icon, {
+                  className: styles["model-selector__provider-icon"],
+                  size: 24,
+                })}
                 <span className={styles["model-selector__name"]}>
                   {selectedModel.name}
                 </span>
@@ -463,18 +470,41 @@ const ChatInterface = () => {
                     exit={{ opacity: 0, y: -10 }}
                     className={styles["model-selector__dropdown"]}
                   >
-                    {models.map((model) => (
-                      <button
-                        key={model.id}
-                        className={styles["model-selector__option"]}
-                        onClick={() => handleModelSelect(model)}
-                      >
-                        <span className={styles["model-selector__icon"]}>
-                          {model.icon}
-                        </span>
-                        <span>{model.name}</span>
-                      </button>
-                    ))}
+                    {Object.entries(AI_PROVIDERS).map(
+                      ([provider, { icon: Icon, models }]) => (
+                        <div
+                          key={provider}
+                          className={styles["model-selector__provider-group"]}
+                        >
+                          <div
+                            className={
+                              styles["model-selector__provider-header"]
+                            }
+                          >
+                            <Icon
+                              className={
+                                styles["model-selector__provider-icon"]
+                              }
+                              size={20}
+                            />
+                            <span>{provider}</span>
+                          </div>
+                          {models.map((model) => (
+                            <button
+                              key={model.id}
+                              className={`${styles["model-selector__option"]} ${
+                                selectedModel.id === model.id
+                                  ? styles["model-selector__option--selected"]
+                                  : ""
+                              }`}
+                              onClick={() => handleModelSelect(provider, model)}
+                            >
+                              <span>{model.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
