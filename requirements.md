@@ -103,6 +103,8 @@ APP Theme - Dark Mode.
    - [x] Implement new Modal component
    - [x] Implement new Toast component
    - [x] Update all existing components to use new UI components
+   - [x] Add click-outside behavior to dropdowns
+   - [x] Update model list with latest AI models
 
 4. Chat Interface
 
@@ -115,6 +117,8 @@ APP Theme - Dark Mode.
    - [x] Elegant background with floating shapes
    - [x] Homepage with animated title and suggestions
    - [x] Smooth transitions between home and chat states
+   - [x] Click-outside handling for dropdowns
+   - [x] Updated AI models list with latest versions
 
 5. Animations & UI
 
@@ -134,6 +138,8 @@ APP Theme - Dark Mode.
    - [x] Google AI integration
    - [x] API key management page
    - [x] Local storage for API keys
+   - [x] Support for latest model versions
+   - [x] Removed deprecated model versions
 
 7. Navigation & Layout
    - [x] Top navigation bar
@@ -155,6 +161,10 @@ APP Theme - Dark Mode.
 10. [x] Improved dark theme consistency in chat interface
 11. [x] Optimized message transitions and animations
 12. [x] Enhanced chat bubble shadows and gradients
+13. [x] Added click-outside behavior to model dropdown
+14. [x] Updated AI models to latest available versions
+15. [x] Removed deprecated model versions
+16. [x] Improved dropdown UI with provider grouping
 
 ### Current Issues to Fix:
 

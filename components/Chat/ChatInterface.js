@@ -13,6 +13,7 @@ import styles from "./ChatInterface.module.scss";
 import { MessageLoading } from "../../components/ui/MessageLoading";
 import { ElegantBackground } from "../../components/ui/ElegantBackground";
 import { AI_PROVIDERS } from "../../src/config/ai-config";
+import { useClickOutside } from "../../components/hooks/useClickOutside";
 import React from "react";
 
 // Add OpenAI configuration
@@ -179,6 +180,10 @@ const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const chatContainerRef = useRef(null);
+
+  const modelSelectorRef = useClickOutside(() => {
+    setShowModelDropdown(false);
+  });
 
   const isNearBottom = () => {
     const container = chatContainerRef.current;
@@ -448,6 +453,7 @@ const ChatInterface = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className={styles["model-selector"]}
+              ref={modelSelectorRef}
             >
               <button
                 className={styles["model-selector__button"]}
