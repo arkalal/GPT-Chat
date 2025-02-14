@@ -172,37 +172,52 @@ const ChatInterface = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const chatContainerRef = useRef(null);
+
+  const isNearBottom = () => {
+    const container = chatContainerRef.current;
+    if (!container) return true;
+
+    const threshold = 100; // pixels from bottom
+    return (
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      threshold
+    );
+  };
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
+    if (messagesEndRef.current && shouldAutoScroll) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  // Scroll on new messages
+  // Handle scroll events to determine if we should auto-scroll
+  const handleScroll = () => {
+    setShouldAutoScroll(isNearBottom());
+  };
+
+  // Add scroll event listener
   useEffect(() => {
-    scrollToBottom();
+    const container = chatContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
+  // Scroll on new messages only if we're near the bottom
+  useEffect(() => {
+    if (isNearBottom()) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   // Scroll when content updates in streaming response
   useEffect(() => {
-    const scrollOnUpdate = () => {
-      const chatContainer = document.querySelector(`.${styles.chat}`);
-      if (chatContainer) {
-        const isScrolledToBottom =
-          chatContainer.scrollHeight - chatContainer.clientHeight <=
-          chatContainer.scrollTop + 100;
-
-        if (isScrolledToBottom) {
-          scrollToBottom();
-        }
-      }
-    };
-
-    scrollOnUpdate();
+    if (messages.length > 0 && shouldAutoScroll) {
+      scrollToBottom();
+    }
   }, [messages.length > 0 ? messages[messages.length - 1].content : null]);
 
   const handleSuggestionClick = (suggestion) => {
@@ -468,6 +483,7 @@ const ChatInterface = () => {
         )}
 
         <div
+          ref={chatContainerRef}
           className={styles.chat}
           style={{ height: isExpanded ? "calc(100vh - 180px)" : 0 }}
         >

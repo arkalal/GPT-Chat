@@ -320,7 +320,6 @@ $transition-duration: 0.2s;
   &__content {
     max-width: 85%;
     border-radius: 1.2rem;
-    padding: 1rem 1.25rem;
     position: relative;
     font-size: 0.9375rem;
     line-height: 1.6;
@@ -336,9 +335,16 @@ $transition-duration: 0.2s;
       backdrop-filter: blur(10px);
       color: rgba(255, 255, 255, 0.9);
       margin-left: auto;
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 0.75rem;
       height: fit-content;
       min-height: 0;
+      display: inline-block;
+      width: auto;
+
+      p {
+        margin: 0;
+        padding: 0;
+      }
 
       &:hover {
         background: linear-gradient(
@@ -360,6 +366,7 @@ $transition-duration: 0.2s;
       border: 1px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       color: rgba(255, 255, 255, 0.9);
+      padding: 1rem 1.25rem;
 
       &:hover {
         background: linear-gradient(
@@ -385,28 +392,32 @@ $transition-duration: 0.2s;
 .input-container {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 1rem;
   background: rgba(3, 3, 3, 0.8);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 100;
-  display: flex;
-  justify-content: center;
+  width: 60%;
 
   form {
-    width: 60%;
     max-width: 800px;
     min-width: 320px;
     position: relative;
+    display: block;
     margin: 0 auto;
+
+    @media (max-width: 768px) {
+      width: 85%;
+    }
   }
 
   textarea {
+    display: block;
     width: 100%;
-    padding: 1rem;
-    padding-right: 3rem;
+    padding: 0.75rem;
+    padding-right: 3.5rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
@@ -414,9 +425,10 @@ $transition-duration: 0.2s;
     resize: none;
     transition: all 0.3s ease;
     backdrop-filter: blur(8px);
-    min-height: 50px;
-    max-height: 150px;
-    overflow-y: auto;
+    min-height: 45px;
+    line-height: 1.5;
+    font-size: 0.9375rem;
+    box-sizing: border-box;
 
     &:focus {
       outline: none;
@@ -428,8 +440,8 @@ $transition-duration: 0.2s;
 
   button {
     position: absolute;
-    right: 0.75rem;
-    bottom: 0.75rem;
+    right: -2rem;
+    top: 30%;
     background: linear-gradient(135deg, $color-blue, $color-purple);
     border: none;
     border-radius: 50%;
@@ -438,14 +450,15 @@ $transition-duration: 0.2s;
     @include flex-center;
     cursor: pointer;
     transition: all 0.3s ease;
+    z-index: 2;
 
     &:hover {
-      transform: scale(1.1) rotate(5deg);
+      transform: translateY(-50%) scale(1.1) rotate(5deg);
       box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
     }
 
     &:active {
-      transform: scale(0.95);
+      transform: translateY(-50%) scale(0.95);
     }
 
     svg {
