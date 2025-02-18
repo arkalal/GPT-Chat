@@ -1,8 +1,9 @@
 import "./globals.scss";
 
 export const metadata = {
-  title: "v0 by Vercel",
-  description: "Ship faster with v0",
+  title: "AI Hub - Your Universal AI Assistant",
+  description:
+    "One platform for all your AI needs - OpenAI, Anthropic, Google, and more",
 };
 
 export default function RootLayout({ children }) {

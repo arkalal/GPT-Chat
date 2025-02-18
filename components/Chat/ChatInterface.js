@@ -401,12 +401,12 @@ const ChatInterface = () => {
     <div className={styles.container}>
       <div className={styles.background_container}>
         <ElegantBackground
-          badge={!isExpanded ? "AI Chat Assistant" : ""}
-          title1={!isExpanded ? "What can I" : ""}
-          title2={!isExpanded ? "help you ship?" : ""}
+          badge={!isExpanded ? "Universal AI Platform" : ""}
+          title1={!isExpanded ? "Your Gateway" : ""}
+          title2={!isExpanded ? "to AI Excellence" : ""}
           description={
             !isExpanded
-              ? "Crafting exceptional digital experiences through innovative design and cutting-edge technology."
+              ? "All your favorite AI models in one powerful platform. Switch seamlessly between ChatGPT, Claude, and more."
               : ""
           }
         />
@@ -419,20 +419,11 @@ const ChatInterface = () => {
         {!isExpanded ? (
           <div className={styles.header}>
             <motion.div
-              className={styles.header__description}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <p>
-                Chat with our AI assistant powered by advanced language models.
-              </p>
-            </motion.div>
-            <motion.div
               className={styles.header__suggestions}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6 }}
+              style={{ marginBottom: "3rem" }}
             >
               {suggestions.map((suggestion, index) => (
                 <motion.button
