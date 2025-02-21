@@ -10,7 +10,8 @@
   top: 0;
   z-index: 1000;
   transform: translateX(-100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background 0.3s ease,
+    visibility 0s linear 0.3s;
   visibility: hidden;
   background: transparent;
 
@@ -21,6 +22,7 @@
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, background 0.3s ease, visibility 0s linear;
   }
 
   @media (min-width: 768px) {
@@ -28,6 +30,7 @@
     & {
       transform: translateX(0);
       visibility: visible;
+      transition: transform 0.3s ease, background 0.3s ease;
     }
   }
 
@@ -40,14 +43,17 @@
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transform: translateX(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 
     .open & {
       opacity: 1;
+      transform: translateX(0);
     }
 
     @media (min-width: 768px) {
       opacity: 1;
+      transform: translateX(0);
     }
   }
 
