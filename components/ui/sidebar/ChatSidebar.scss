@@ -1,0 +1,165 @@
+@import "./sidebar.scss";
+
+.sidebar-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #000000, #0a0a0a);
+
+  @media (min-width: 768px) {
+    position: relative;
+  }
+
+  &__body {
+    justify-content: space-between;
+    gap: 2.5rem;
+    padding: 1.5rem 0.5rem;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #111111;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #1a1a1a;
+      border-radius: 3px;
+
+      &:hover {
+        background: #2a2a2a;
+      }
+    }
+  }
+
+  &__links {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__icon {
+    color: rgba(255, 255, 255, 0.7);
+    height: 1.25rem;
+    width: 1.25rem;
+    flex-shrink: 0;
+    transition: color 0.3s ease;
+
+    .sidebar__link:hover & {
+      color: #ffffff;
+    }
+  }
+
+  &__logo {
+    font-weight: normal;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    position: relative;
+    z-index: 20;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__logo-icon {
+    height: 1.5rem;
+    width: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      rgba(255, 255, 255, 0.7) 100%
+    );
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+
+    .sidebar-chat__logo:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  &__logo-text {
+    font-weight: 600;
+    font-size: 1.25rem;
+    background: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: pre;
+  }
+}
+
+// Override some sidebar styles for chat interface
+.sidebar {
+  &__desktop {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(10, 10, 10, 0.98) 100%
+    );
+    backdrop-filter: blur(10px);
+  }
+
+  &__mobile {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.98);
+    backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+
+  &__mobile-content {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(10, 10, 10, 0.98) 100%
+    );
+    backdrop-filter: blur(10px);
+    z-index: 1001;
+  }
+
+  &__link {
+    margin: 0.125rem 0;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(4px);
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(2px);
+    }
+  }
+}

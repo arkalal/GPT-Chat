@@ -39,9 +39,12 @@ APP Theme - Dark Mode.
    - No inline styles - all styling should be in SCSS modules
 
 3. Import Path Requirements:
+
    - Use relative paths (../../) instead of @/ aliases
    - All imports should reference the root components directory
    - Example: `import Button from "../../components/ui/button"`
+
+4. If you are using React hooks in any functional component, always use "use client" at the top of the component file.
 
 ### Dependencies and Configuration Requirements
 
