@@ -384,10 +384,23 @@ const ChatInterface = () => {
     }
   };
 
-  const handleModelSelect = (provider, model) => {
+  const handleModelButtonClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowModelDropdown(!showModelDropdown);
+  };
+
+  const handleModelSelect = (e, provider, model) => {
+    e.preventDefault();
+    e.stopPropagation();
     setSelectedProvider(provider);
     setSelectedModel(model);
     setShowModelDropdown(false);
+  };
+
+  const handleDropdownClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleKeyPress = (e) => {
@@ -445,10 +458,12 @@ const ChatInterface = () => {
               animate={{ opacity: 1 }}
               className={styles["model-selector"]}
               ref={modelSelectorRef}
+              onClick={handleDropdownClick}
             >
               <button
                 className={styles["model-selector__button"]}
-                onClick={() => setShowModelDropdown(!showModelDropdown)}
+                onClick={handleModelButtonClick}
+                type="button"
               >
                 {React.createElement(AI_PROVIDERS[selectedProvider].icon, {
                   className: styles["model-selector__provider-icon"],
@@ -466,6 +481,7 @@ const ChatInterface = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className={styles["model-selector__dropdown"]}
+                    onClick={handleDropdownClick}
                   >
                     {Object.entries(AI_PROVIDERS).map(
                       ([provider, { icon: Icon, models }]) => (
@@ -489,12 +505,15 @@ const ChatInterface = () => {
                           {models.map((model) => (
                             <button
                               key={model.id}
+                              type="button"
                               className={`${styles["model-selector__option"]} ${
                                 selectedModel.id === model.id
                                   ? styles["model-selector__option--selected"]
                                   : ""
                               }`}
-                              onClick={() => handleModelSelect(provider, model)}
+                              onClick={(e) =>
+                                handleModelSelect(e, provider, model)
+                              }
                             >
                               <span>{model.name}</span>
                             </button>

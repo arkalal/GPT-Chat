@@ -173,7 +173,11 @@ $transition-duration: 0.2s;
   position: fixed;
   top: 1rem;
   left: 80px;
-  z-index: 50;
+  z-index: 10000;
+  display: inline-block;
+  min-width: 160px;
+  pointer-events: all;
+  isolation: isolate;
 
   @media (max-width: 768px) {
     left: 1rem;
@@ -190,6 +194,11 @@ $transition-duration: 0.2s;
     backdrop-filter: blur(10px);
     transition: all $transition-duration;
     cursor: pointer;
+    width: 100%;
+    user-select: none;
+    pointer-events: all;
+    position: relative;
+    z-index: 10000;
 
     &:hover {
       background: rgba(40, 40, 40, 0.8);
@@ -198,34 +207,10 @@ $transition-duration: 0.2s;
     }
   }
 
-  &__provider-icon {
-    color: rgba(255, 255, 255, 0.9);
-    transition: all $transition-duration;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    &:hover {
-      color: white;
-    }
-  }
-
-  &__name {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-  }
-
   &__dropdown {
     position: absolute;
     left: 0;
-    top: 100%;
-    margin-top: 0.5rem;
+    top: calc(100% + 8px);
     background: rgba(25, 25, 25, 0.95);
     border-radius: $border-radius;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -234,8 +219,10 @@ $transition-duration: 0.2s;
     max-height: 80vh;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+    display: block;
+    z-index: 10001;
+    pointer-events: all;
+    isolation: isolate;
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -258,6 +245,8 @@ $transition-duration: 0.2s;
 
   &__provider-group {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: block;
+    width: 100%;
 
     &:last-child {
       border-bottom: none;
@@ -278,7 +267,7 @@ $transition-duration: 0.2s;
     position: sticky;
     top: 0;
     backdrop-filter: blur(8px);
-    z-index: 1;
+    width: 100%;
 
     svg {
       width: 18px;
@@ -304,6 +293,7 @@ $transition-duration: 0.2s;
     cursor: pointer;
     background: transparent;
     border: none;
+    user-select: none;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);

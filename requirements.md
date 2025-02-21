@@ -174,6 +174,18 @@ APP Theme - Dark Mode.
 20. [x] Updated AI models to latest available versions
 21. [x] Removed deprecated model versions
 22. [x] Improved dropdown UI with provider grouping
+23. [x] Fixed model selector dropdown clickability issues:
+    - Implemented proper event propagation handling
+    - Added isolation context for z-index stacking
+    - Fixed pointer-events conflicts with sidebar
+    - Added proper event handlers for all interactive elements
+    - Updated z-index hierarchy between sidebar and dropdown
+    - Improved dropdown accessibility and interaction
+24. [x] Enhanced sidebar and dropdown interaction:
+    - Added pointer-events control for proper event handling
+    - Implemented proper z-index layering
+    - Fixed event bubbling issues
+    - Improved component isolation
 
 ### Current Issues to Fix:
 
