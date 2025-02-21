@@ -17,6 +17,8 @@ import "./ChatSidebar.scss";
 
 export function ChatSidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
   const links = [
     {
       label: "Chat",
@@ -45,10 +47,8 @@ export function ChatSidebar() {
     },
   ];
 
-  const [open, setOpen] = useState(false);
-
   return (
-    <div className="sidebar-chat">
+    <div className={`sidebar-chat ${open ? "open" : ""}`}>
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="sidebar-chat__body">
           <div className="sidebar-chat__content">

@@ -104,52 +104,59 @@ a {
 .app-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+  min-height: 100vh;
+  min-width: 100vw;
   position: relative;
+  overflow: hidden;
 
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+
+  // Base background that covers everything
   &::before {
     content: "";
     position: fixed;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
     height: 100vh;
     background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
     z-index: -2;
   }
 
-  @media (min-width: 768px) {
-    flex-direction: row;
-  }
-
   &__main {
     flex: 1;
-    height: 100vh;
+    min-height: 100vh;
+    min-width: 100%;
     position: relative;
     padding: 1rem;
     padding-top: 4rem; // Space for mobile header
-    overflow: hidden; // Prevent scrolling on home page
+    overflow: hidden;
 
     @media (min-width: 768px) {
       padding-top: 1rem;
     }
 
-    // Add a gradient overlay
+    // Content overlay gradient
     &::before {
       content: "";
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
       background: linear-gradient(
         135deg,
         rgba(0, 0, 0, 0.95) 0%,
         rgba(10, 10, 10, 0.97) 100%
       );
       z-index: -1;
+      pointer-events: none;
     }
   }
 }
