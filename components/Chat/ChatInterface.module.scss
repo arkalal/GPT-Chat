@@ -172,8 +172,12 @@ $transition-duration: 0.2s;
 .model-selector {
   position: fixed;
   top: 1rem;
-  left: 1rem;
+  left: 80px;
   z-index: 50;
+
+  @media (max-width: 768px) {
+    left: 1rem;
+  }
 
   &__button {
     display: flex;
