@@ -49,6 +49,30 @@ export function ChatSidebar() {
     const handleMouseMove = (e) => {
       if (!sidebarRef.current) return;
 
+      // Check if mouse is over the logo or logo text
+      const logoElement = sidebarRef.current.querySelector(
+        ".sidebar-chat__logo"
+      );
+      const logoTextElement = sidebarRef.current.querySelector(
+        ".sidebar-chat__logo-text"
+      );
+
+      // Check if target or any parent is the logo/text (using closest for parent check)
+      const isOverLogo =
+        logoElement &&
+        (logoElement.contains(e.target) ||
+          e.target.closest(".sidebar-chat__logo"));
+      const isOverLogoText =
+        logoTextElement &&
+        (logoTextElement.contains(e.target) || e.target === logoTextElement);
+
+      // If mouse is over logo or logo text, don't close sidebar and exit early
+      if (isOverLogo || isOverLogoText) {
+        setOpen(true);
+        sidebarRef.current.classList.remove("model-selector-hover");
+        return;
+      }
+
       // Define the area where the model selector is positioned
       const modelSelectorArea = {
         left: 60,
@@ -57,13 +81,14 @@ export function ChatSidebar() {
         bottom: 80, // Height of the model selector area
       };
 
-      // Check if mouse is in the model selector area
-      if (
+      // Check if mouse is in the model selector area and NOT near logo
+      const isInSelectorArea =
         e.clientX > modelSelectorArea.left &&
         e.clientX < modelSelectorArea.right &&
         e.clientY > modelSelectorArea.top &&
-        e.clientY < modelSelectorArea.bottom
-      ) {
+        e.clientY < modelSelectorArea.bottom;
+
+      if (isInSelectorArea && !isOverLogo && !isOverLogoText) {
         // Add class to handle model selector area hover
         sidebarRef.current.classList.add("model-selector-hover");
       } else {
@@ -78,7 +103,7 @@ export function ChatSidebar() {
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
     };
-  }, []);
+  }, [setOpen]);
 
   const links = [
     {
@@ -118,7 +143,7 @@ export function ChatSidebar() {
       <Sidebar open={open} setOpen={setOpen} animate={!initialRender}>
         <SidebarBody className="sidebar-chat__body">
           <div className="sidebar-chat__content">
-            {open ? <Logo /> : <LogoIcon />}
+            {open ? <Logo setOpen={setOpen} /> : <LogoIcon />}
             <div className="sidebar-chat__links">
               {links.map((link, idx) => (
                 <SidebarLink
@@ -146,9 +171,27 @@ export function ChatSidebar() {
   );
 }
 
-const Logo = () => {
+const Logo = ({ setOpen }) => {
+  // Keep sidebar open when logo is clicked or hovered
+  const forceSidebarOpen = () => {
+    setOpen(true);
+  };
+
+  // Handle all possible mouse events to ensure sidebar stays open
+  const handleInteraction = (e) => {
+    e.stopPropagation();
+    forceSidebarOpen();
+  };
+
   return (
-    <Link href="/" className="sidebar-chat__logo">
+    <Link
+      href="/"
+      className="sidebar-chat__logo"
+      onMouseEnter={handleInteraction}
+      onMouseOver={handleInteraction}
+      onMouseMove={handleInteraction}
+      onClick={handleInteraction}
+    >
       <motion.div
         className="sidebar-chat__logo-icon"
         whileHover={{ scale: 1.05 }}
@@ -159,6 +202,10 @@ const Logo = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
         className="sidebar-chat__logo-text"
+        onMouseEnter={handleInteraction}
+        onMouseOver={handleInteraction}
+        onMouseMove={handleInteraction}
+        onClick={handleInteraction}
       >
         AI Hub
       </motion.span>

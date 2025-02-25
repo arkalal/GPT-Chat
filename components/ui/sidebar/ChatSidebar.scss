@@ -179,17 +179,24 @@ html.disable-sidebar-transition .sidebar__desktop {
     color: #ffffff;
     padding: 0.75rem 1rem;
     position: relative;
-    z-index: 20;
+    z-index: 30; /* Higher z-index to ensure it's above other elements */
     margin-bottom: 1rem;
     border-radius: 0.5rem;
     transition: all 0.3s ease;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflowing text */
+    overflow: visible; /* Allow text to be visible */
+    pointer-events: auto; /* Ensure mouse events are captured */
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
       transform: translateX(4px);
+    }
+
+    /* Override model-selector-hover behavior for logo */
+    .sidebar-chat.open.model-selector-hover & {
+      pointer-events: auto;
+      opacity: 1;
     }
 
     .sidebar-chat:not(.open) & {
@@ -230,12 +237,28 @@ html.disable-sidebar-transition .sidebar__desktop {
     white-space: pre;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: auto; /* Ensure logo text receives mouse events */
+    position: relative; /* Ensure position context for z-index */
+    z-index: 35; /* Make sure it's above other elements */
+    cursor: pointer; /* Show pointer cursor to indicate interactive element */
+
+    &:hover {
+      filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.5));
+      transform: translateY(-1px) !important;
+    }
 
     .sidebar-chat:not(.open) & {
       opacity: 0;
       transform: translateX(-20px);
       width: 0;
       overflow: hidden;
+    }
+
+    /* Override model-selector-hover behavior for logo text */
+    .sidebar-chat.open.model-selector-hover & {
+      pointer-events: auto;
+      opacity: 1;
+      filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.5));
     }
   }
 }

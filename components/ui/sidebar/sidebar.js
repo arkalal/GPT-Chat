@@ -2,7 +2,7 @@
 
 import { cn } from "../../../src/utils/classNames";
 import Link from "next/link";
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import "./sidebar.scss";
@@ -55,6 +55,7 @@ export const SidebarBody = (props) => {
 export const DesktopSidebar = ({ className, children, ...props }) => {
   const { open, setOpen, animate } = useSidebar();
   const [initialRender, setInitialRender] = useState(true);
+  const sidebarRef = useRef(null);
 
   // Check for disable-sidebar-transition class on mount
   useEffect(() => {
@@ -74,8 +75,26 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
     }
   }, []);
 
+  // Custom mouse leave handler that considers logo hover
+  const handleMouseLeave = (e) => {
+    if (initialRender) return;
+
+    // Check if moving to the logo element
+    const logoElement = document.querySelector(".sidebar-chat__logo");
+    if (
+      logoElement &&
+      (logoElement.contains(e.relatedTarget) || logoElement === e.relatedTarget)
+    ) {
+      // Don't close if hovering over logo
+      return;
+    }
+
+    setOpen(false);
+  };
+
   return (
     <motion.div
+      ref={sidebarRef}
       className={cn("sidebar__desktop", className)}
       initial={false}
       animate={
@@ -86,7 +105,7 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
           : { width: "60px" }
       }
       onMouseEnter={() => !initialRender && setOpen(true)}
-      onMouseLeave={() => !initialRender && setOpen(false)}
+      onMouseLeave={handleMouseLeave}
       {...props}
     >
       {children}
