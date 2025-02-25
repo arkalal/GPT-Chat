@@ -195,6 +195,16 @@ APP Theme - Dark Mode.
     - Maintained proper sidebar visibility and hover functionality
     - Fixed hover expansion functionality after initial load
     - Synchronized transition timings between components
+26. [x] Implemented comprehensive solution for sidebar/model selector interaction:
+    - Modified sidebar to use variable width (60px collapsed, 300px expanded) to prevent overlap
+    - Created mouse position detection system to handle model selector area interactions
+    - Added `model-selector-hover` class that forces sidebar to stay collapsed when interacting near the selector
+    - Applied z-index hierarchy with isolation contexts to ensure proper stacking
+    - Created transparent clickable areas using pseudo-elements to improve event handling
+    - Implemented smooth transitions between states for improved UX
+    - Added pointer-event controls to ensure clicks are properly captured by intended elements
+    - Added buffer zones between components to prevent accidental interactions
+    - Enhanced mobile responsiveness with adaptive positioning
 
 ### Current Issues to Fix:
 

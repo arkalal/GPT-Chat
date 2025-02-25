@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./sidebar";
 import {
   MessageSquare,
@@ -30,6 +30,7 @@ export function ChatSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [initialRender, setInitialRender] = useState(true);
+  const sidebarRef = useRef(null);
 
   // Handle initial render state
   useEffect(() => {
@@ -42,6 +43,42 @@ export function ChatSidebar() {
       return () => clearTimeout(timer);
     }
   }, [initialRender]);
+
+  // Add mouse detection for model selector area
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!sidebarRef.current) return;
+
+      // Define the area where the model selector is positioned
+      const modelSelectorArea = {
+        left: 60,
+        right: 220, // Approximate width of model selector plus some padding
+        top: 0,
+        bottom: 80, // Height of the model selector area
+      };
+
+      // Check if mouse is in the model selector area
+      if (
+        e.clientX > modelSelectorArea.left &&
+        e.clientX < modelSelectorArea.right &&
+        e.clientY > modelSelectorArea.top &&
+        e.clientY < modelSelectorArea.bottom
+      ) {
+        // Add class to handle model selector area hover
+        sidebarRef.current.classList.add("model-selector-hover");
+      } else {
+        // Remove class when mouse leaves the area
+        sidebarRef.current.classList.remove("model-selector-hover");
+      }
+    };
+
+    // Add listener for mouse movements
+    document.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
 
   const links = [
     {
@@ -73,6 +110,7 @@ export function ChatSidebar() {
 
   return (
     <div
+      ref={sidebarRef}
       className={`sidebar-chat ${open ? "open" : ""} ${
         initialRender ? "no-transition" : ""
       }`}
