@@ -2,7 +2,7 @@
 
 import { cn } from "../../../src/utils/classNames";
 import Link from "next/link";
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import "./sidebar.scss";
@@ -54,14 +54,39 @@ export const SidebarBody = (props) => {
 
 export const DesktopSidebar = ({ className, children, ...props }) => {
   const { open, setOpen, animate } = useSidebar();
+  const [initialRender, setInitialRender] = useState(true);
+
+  // Check for disable-sidebar-transition class on mount
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      setInitialRender(
+        document.documentElement.classList.contains(
+          "disable-sidebar-transition"
+        )
+      );
+
+      // After a short delay, set initialRender to false to enable animations
+      const timer = setTimeout(() => {
+        setInitialRender(false);
+      }, 600); // Slightly longer than the transition removal in ChatSidebar.js
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <motion.div
       className={cn("sidebar__desktop", className)}
-      animate={{
-        width: animate ? (open ? "300px" : "60px") : "300px",
-      }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      initial={false}
+      animate={
+        !initialRender
+          ? {
+              width: animate ? (open ? "300px" : "60px") : "300px",
+            }
+          : { width: "60px" }
+      }
+      onMouseEnter={() => !initialRender && setOpen(true)}
+      onMouseLeave={() => !initialRender && setOpen(false)}
       {...props}
     >
       {children}
@@ -71,6 +96,8 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
 
 export const MobileSidebar = ({ className, children, ...props }) => {
   const { open, setOpen } = useSidebar();
+  const initialRender = className?.includes("no-transition");
+
   return (
     <>
       <div className={cn("sidebar__mobile", className)} {...props}>
@@ -81,7 +108,7 @@ export const MobileSidebar = ({ className, children, ...props }) => {
           />
         </div>
         <AnimatePresence>
-          {open && (
+          {open && !initialRender && (
             <motion.div
               initial={{ x: "-100%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -100,6 +127,20 @@ export const MobileSidebar = ({ className, children, ...props }) => {
               </div>
               {children}
             </motion.div>
+          )}
+          {open && initialRender && (
+            <div
+              className={cn("sidebar__mobile-content", className)}
+              style={{ transform: "translateX(-100%)", opacity: 0 }}
+            >
+              <div
+                className="sidebar__mobile-close"
+                onClick={() => setOpen(!open)}
+              >
+                <X />
+              </div>
+              {children}
+            </div>
           )}
         </AnimatePresence>
       </div>

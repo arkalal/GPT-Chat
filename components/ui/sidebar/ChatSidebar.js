@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./sidebar";
 import {
   MessageSquare,
@@ -15,9 +15,33 @@ import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import "./ChatSidebar.scss";
 
+// Add an inline script to handle initial state
+// This ensures the sidebar is in the collapsed state before any styles are applied
+if (typeof document !== "undefined") {
+  document.documentElement.classList.add("disable-sidebar-transition");
+
+  // Remove the class after a delay to re-enable transitions
+  setTimeout(() => {
+    document.documentElement.classList.remove("disable-sidebar-transition");
+  }, 500);
+}
+
 export function ChatSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [initialRender, setInitialRender] = useState(true);
+
+  // Handle initial render state
+  useEffect(() => {
+    if (initialRender) {
+      // Wait for the component to render fully
+      const timer = setTimeout(() => {
+        setInitialRender(false);
+      }, 600); // Match the timeout in sidebar.js
+
+      return () => clearTimeout(timer);
+    }
+  }, [initialRender]);
 
   const links = [
     {
@@ -48,8 +72,12 @@ export function ChatSidebar() {
   ];
 
   return (
-    <div className={`sidebar-chat ${open ? "open" : ""}`}>
-      <Sidebar open={open} setOpen={setOpen}>
+    <div
+      className={`sidebar-chat ${open ? "open" : ""} ${
+        initialRender ? "no-transition" : ""
+      }`}
+    >
+      <Sidebar open={open} setOpen={setOpen} animate={!initialRender}>
         <SidebarBody className="sidebar-chat__body">
           <div className="sidebar-chat__content">
             {open ? <Logo /> : <LogoIcon />}

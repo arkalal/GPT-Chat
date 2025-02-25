@@ -7,18 +7,35 @@ $hover-bg: rgba(255, 255, 255, 0.1);
 $active-bg: rgba(255, 255, 255, 0.15);
 $transition-duration: 0.3s;
 
+/* Initial state - should be added inline before any styles */
+html.disable-sidebar-transition .sidebar__desktop {
+  width: 60px !important;
+}
+
+/* Remove the !important once the page has loaded */
+html:not(.disable-sidebar-transition) .sidebar__desktop {
+  width: 60px;
+}
+
 // Desktop Sidebar
 .sidebar {
   &__desktop {
+    position: relative;
     height: 100%;
     padding: 1rem;
     display: none;
     flex-direction: column;
     background-color: $sidebar-bg;
     background: linear-gradient(to bottom, #000000, #0a0a0a);
-    width: 300px;
+    width: 60px; // Default collapsed width
     flex-shrink: 0;
     border-right: 1px solid $sidebar-border;
+    transition: width 0.3s ease;
+    overflow: hidden;
+
+    &.no-transition {
+      transition: none !important;
+    }
 
     @media (min-width: 768px) {
       display: flex;

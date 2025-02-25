@@ -1,5 +1,14 @@
 @import "./sidebar.scss";
 
+/* Global style for disabling transitions on page load */
+html.disable-sidebar-transition * {
+  transition: none !important;
+}
+
+html.disable-sidebar-transition .sidebar__desktop {
+  width: 60px !important;
+}
+
 .sidebar-chat {
   display: flex;
   flex-direction: column;
@@ -15,6 +24,10 @@
   visibility: hidden;
   background: transparent;
   pointer-events: none;
+
+  &.no-transition {
+    transition: none !important;
+  }
 
   &.open {
     transform: translateX(0);
@@ -32,11 +45,16 @@
     & {
       transform: translateX(0);
       visibility: visible;
+      pointer-events: auto;
+    }
+
+    &:not(.no-transition) {
       transition: transform 0.3s ease, background 0.3s ease;
     }
   }
 
   &__body {
+    pointer-events: auto;
     justify-content: space-between;
     gap: 2.5rem;
     padding: 1.5rem 0.5rem;
@@ -47,7 +65,10 @@
     opacity: 0;
     transform: translateX(-20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: auto;
+
+    .no-transition & {
+      transition: none !important;
+    }
 
     .open & {
       opacity: 1;
