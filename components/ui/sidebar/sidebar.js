@@ -169,10 +169,26 @@ export const MobileSidebar = ({ className, children, ...props }) => {
 
 export const SidebarLink = ({ link, className, ...props }) => {
   const { open, animate } = useSidebar();
+
+  // Add classes based on sidebar state for proper icon positioning
+  const linkClassName = cn(
+    "sidebar__link",
+    open ? "sidebar__link--expanded" : "sidebar__link--collapsed",
+    className
+  );
+
+  // Add an inline style for consistent positioning
+  const linkStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: open ? "flex-start" : "center",
+  };
+
   return (
     <Link
       href={link.href}
-      className={cn("sidebar__link", className)}
+      className={linkClassName}
+      style={linkStyle}
       {...props}
     >
       {link.icon}
@@ -181,6 +197,7 @@ export const SidebarLink = ({ link, className, ...props }) => {
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
+        transition={{ duration: 0 }} // Zero-duration transition to prevent movement
         className="sidebar__link-text"
       >
         {link.label}

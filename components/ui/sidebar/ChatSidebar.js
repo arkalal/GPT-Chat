@@ -18,12 +18,32 @@ import "./ChatSidebar.scss";
 // Add an inline script to handle initial state
 // This ensures the sidebar is in the collapsed state before any styles are applied
 if (typeof document !== "undefined") {
+  // Stronger approach to disable transitions on initial load
   document.documentElement.classList.add("disable-sidebar-transition");
 
-  // Remove the class after a delay to re-enable transitions
+  // Add a style element to disable transitions right away
+  const style = document.createElement("style");
+  style.textContent = `
+    .sidebar-chat__icon-container,
+    .sidebar__link, 
+    .sidebar-chat__icon {
+      transition: none !important;
+      transform: none !important;
+    }
+  `;
+  style.id = "disable-sidebar-transitions-style";
+  document.head.appendChild(style);
+
+  // Remove the class and style after a delay to re-enable transitions
   setTimeout(() => {
     document.documentElement.classList.remove("disable-sidebar-transition");
-  }, 500);
+    const styleElement = document.getElementById(
+      "disable-sidebar-transitions-style"
+    );
+    if (styleElement) {
+      styleElement.remove();
+    }
+  }, 800); // Increased timeout to ensure everything is loaded
 }
 
 export function ChatSidebar() {
@@ -109,27 +129,47 @@ export function ChatSidebar() {
     {
       label: "Chat",
       href: "/",
-      icon: <MessageSquare className="sidebar-chat__icon" />,
+      icon: (
+        <motion.div className="sidebar-chat__icon-container">
+          <MessageSquare className="sidebar-chat__icon" />
+        </motion.div>
+      ),
     },
     {
       label: "API Keys",
       href: "/api-keys",
-      icon: <Key className="sidebar-chat__icon" />,
+      icon: (
+        <motion.div className="sidebar-chat__icon-container">
+          <Key className="sidebar-chat__icon" />
+        </motion.div>
+      ),
     },
     {
       label: "History",
       href: "/history",
-      icon: <History className="sidebar-chat__icon" />,
+      icon: (
+        <motion.div className="sidebar-chat__icon-container">
+          <History className="sidebar-chat__icon" />
+        </motion.div>
+      ),
     },
     {
       label: "AI Models",
       href: "/models",
-      icon: <Brain className="sidebar-chat__icon" />,
+      icon: (
+        <motion.div className="sidebar-chat__icon-container">
+          <Brain className="sidebar-chat__icon" />
+        </motion.div>
+      ),
     },
     {
       label: "Settings",
       href: "/settings",
-      icon: <Settings className="sidebar-chat__icon" />,
+      icon: (
+        <motion.div className="sidebar-chat__icon-container">
+          <Settings className="sidebar-chat__icon" />
+        </motion.div>
+      ),
     },
   ];
 
@@ -161,7 +201,11 @@ export function ChatSidebar() {
               link={{
                 label: "Logout",
                 href: "/logout",
-                icon: <LogOut className="sidebar-chat__icon" />,
+                icon: (
+                  <motion.div className="sidebar-chat__icon-container">
+                    <LogOut className="sidebar-chat__icon" />
+                  </motion.div>
+                ),
               }}
             />
           </div>

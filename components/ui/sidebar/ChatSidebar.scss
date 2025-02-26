@@ -170,6 +170,28 @@ html.disable-sidebar-transition .sidebar__desktop {
     }
   }
 
+  &__icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem; /* Fixed width to prevent movement */
+    height: 1.25rem; /* Fixed height to match icon size */
+    position: relative;
+    transform: none !important; /* Prevent any transform that might cause movement */
+    transition: none !important; /* Disable transitions that might cause movement */
+    left: 0 !important; /* Force positioning to stay at left: 0 */
+    flex-shrink: 0;
+
+    /* Fix alignment in sidebar */
+    .sidebar__link--collapsed & {
+      margin: 0 auto;
+    }
+
+    .sidebar__link--expanded & {
+      margin-left: 0.25rem;
+    }
+  }
+
   &__logo {
     font-weight: normal;
     display: flex;
@@ -315,10 +337,11 @@ html.disable-sidebar-transition .sidebar__desktop {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    // Center icon when collapsed
+    // Center icon when collapsed with proper spacing
     .sidebar-chat:not(.open) & {
       justify-content: center;
-      padding: 0.75rem 0;
+      padding: 0.75rem 1rem;
+      width: 100%;
     }
   }
 
