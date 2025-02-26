@@ -60,16 +60,13 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
   // Check for disable-sidebar-transition class on mount
   useEffect(() => {
     if (typeof document !== "undefined") {
-      setInitialRender(
-        document.documentElement.classList.contains(
-          "disable-sidebar-transition"
-        )
-      );
+      // Start with initialRender true
+      setInitialRender(true);
 
-      // After a short delay, set initialRender to false to enable animations
+      // Use a longer timeout to prevent any animations before the page is fully loaded
       const timer = setTimeout(() => {
         setInitialRender(false);
-      }, 600); // Slightly longer than the transition removal in ChatSidebar.js
+      }, 1500); // Longer than the CSS transition removal timeout
 
       return () => clearTimeout(timer);
     }
@@ -95,7 +92,11 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
   return (
     <motion.div
       ref={sidebarRef}
-      className={cn("sidebar__desktop", className)}
+      className={cn(
+        "sidebar__desktop",
+        initialRender ? "no-transition" : "",
+        className
+      )}
       initial={false}
       animate={
         !initialRender
@@ -104,6 +105,7 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
             }
           : { width: "60px" }
       }
+      transition={{ duration: initialRender ? 0 : 0.3 }}
       onMouseEnter={() => !initialRender && setOpen(true)}
       onMouseLeave={handleMouseLeave}
       {...props}
@@ -169,11 +171,31 @@ export const MobileSidebar = ({ className, children, ...props }) => {
 
 export const SidebarLink = ({ link, className, ...props }) => {
   const { open, animate } = useSidebar();
+  const [initialRender, setInitialRender] = useState(true);
+
+  // Track initial render state
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      // Start with initialRender true
+      setInitialRender(true);
+
+      // Use a timeout slightly longer than the CSS transition removal
+      const timer = setTimeout(() => {
+        setInitialRender(false);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Add classes based on sidebar state for proper icon positioning
   const linkClassName = cn(
     "sidebar__link",
-    open ? "sidebar__link--expanded" : "sidebar__link--collapsed",
+    initialRender
+      ? "sidebar__link--collapsed no-transition"
+      : open
+      ? "sidebar__link--expanded"
+      : "sidebar__link--collapsed",
     className
   );
 
@@ -181,7 +203,7 @@ export const SidebarLink = ({ link, className, ...props }) => {
   const linkStyle = {
     display: "flex",
     alignItems: "center",
-    justifyContent: open ? "flex-start" : "center",
+    justifyContent: initialRender ? "center" : open ? "flex-start" : "center",
   };
 
   return (
@@ -193,9 +215,16 @@ export const SidebarLink = ({ link, className, ...props }) => {
     >
       {link.icon}
       <motion.span
+        initial={{ opacity: initialRender ? 0 : open ? 1 : 0 }}
         animate={{
-          display: animate ? (open ? "inline-block" : "none") : "inline-block",
-          opacity: animate ? (open ? 1 : 0) : 1,
+          display: initialRender
+            ? "none"
+            : animate
+            ? open
+              ? "inline-block"
+              : "none"
+            : "inline-block",
+          opacity: initialRender ? 0 : animate ? (open ? 1 : 0) : 1,
         }}
         transition={{ duration: 0 }} // Zero-duration transition to prevent movement
         className="sidebar__link-text"

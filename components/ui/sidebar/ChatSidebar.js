@@ -24,17 +24,42 @@ if (typeof document !== "undefined") {
   // Add a style element to disable transitions right away
   const style = document.createElement("style");
   style.textContent = `
+    /* Prevent all movement during page load */
     .sidebar-chat__icon-container,
-    .sidebar__link, 
-    .sidebar-chat__icon {
+    .sidebar__link,
+    .sidebar-chat__icon,
+    .sidebar__link-text,
+    .sidebar__desktop, 
+    .sidebar-chat,
+    .sidebar-chat__body {
       transition: none !important;
       transform: none !important;
+      animation: none !important;
+    }
+    
+    /* Fix icon position on page load */
+    .sidebar-chat__icon-container {
+      position: relative !important;
+      left: 0 !important;
+      margin: 0 auto !important;
+      transform: none !important;
+    }
+    
+    /* Ensure sidebar starts in collapsed state */
+    .sidebar__desktop {
+      width: 60px !important;
+    }
+    
+    /* Ensure links are properly centered initially */
+    .sidebar__link {
+      justify-content: center !important;
+      padding: 0.75rem 1rem !important;
     }
   `;
   style.id = "disable-sidebar-transitions-style";
   document.head.appendChild(style);
 
-  // Remove the class and style after a delay to re-enable transitions
+  // Remove the class and style after a longer delay to ensure everything is fully loaded
   setTimeout(() => {
     document.documentElement.classList.remove("disable-sidebar-transition");
     const styleElement = document.getElementById(
@@ -43,7 +68,7 @@ if (typeof document !== "undefined") {
     if (styleElement) {
       styleElement.remove();
     }
-  }, 800); // Increased timeout to ensure everything is loaded
+  }, 1200); // Increased timeout for reliable loading
 }
 
 export function ChatSidebar() {
