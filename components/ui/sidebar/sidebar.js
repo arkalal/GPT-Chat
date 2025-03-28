@@ -4,7 +4,7 @@ import { cn } from "../../../src/utils/classNames";
 import Link from "next/link";
 import { useState, createContext, useContext, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronRight } from "lucide-react";
 import "./sidebar.scss";
 
 const SidebarContext = createContext(undefined);
@@ -56,6 +56,8 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
   const { open, setOpen, animate } = useSidebar();
   const [initialRender, setInitialRender] = useState(true);
   const sidebarRef = useRef(null);
+  const mouseLeaveTimeoutRef = useRef(null);
+  const isUserInteractingRef = useRef(false);
 
   // Check for disable-sidebar-transition class on mount
   useEffect(() => {
@@ -72,7 +74,52 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
     }
   }, []);
 
-  // Custom mouse leave handler that considers logo hover
+  // Add mouseover and click event listeners to track user interaction
+  useEffect(() => {
+    const handleUserInteractionStart = () => {
+      isUserInteractingRef.current = true;
+      // Clear any pending timeouts when user starts interacting
+      if (mouseLeaveTimeoutRef.current) {
+        clearTimeout(mouseLeaveTimeoutRef.current);
+        mouseLeaveTimeoutRef.current = null;
+      }
+    };
+
+    const handleUserInteractionEnd = () => {
+      isUserInteractingRef.current = false;
+    };
+
+    if (sidebarRef.current) {
+      sidebarRef.current.addEventListener(
+        "mouseover",
+        handleUserInteractionStart
+      );
+      sidebarRef.current.addEventListener(
+        "mousedown",
+        handleUserInteractionStart
+      );
+      sidebarRef.current.addEventListener("mouseout", handleUserInteractionEnd);
+    }
+
+    return () => {
+      if (sidebarRef.current) {
+        sidebarRef.current.removeEventListener(
+          "mouseover",
+          handleUserInteractionStart
+        );
+        sidebarRef.current.removeEventListener(
+          "mousedown",
+          handleUserInteractionStart
+        );
+        sidebarRef.current.removeEventListener(
+          "mouseout",
+          handleUserInteractionEnd
+        );
+      }
+    };
+  }, []);
+
+  // Custom mouse leave handler that considers logo hover and collapses immediately when mouse leaves
   const handleMouseLeave = (e) => {
     if (initialRender) return;
 
@@ -86,6 +133,13 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
       return;
     }
 
+    // Clear any existing timeout
+    if (mouseLeaveTimeoutRef.current) {
+      clearTimeout(mouseLeaveTimeoutRef.current);
+      mouseLeaveTimeoutRef.current = null;
+    }
+
+    // Collapse immediately
     setOpen(false);
   };
 
@@ -232,5 +286,105 @@ export const SidebarLink = ({ link, className, ...props }) => {
         {link.label}
       </motion.span>
     </Link>
+  );
+};
+
+// New component for collapsible sidebar items
+export const CollapsibleSidebarItem = ({ item, className }) => {
+  const { open, setOpen } = useSidebar();
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
+  const [initialRender, setInitialRender] = useState(true);
+
+  // Track initial render state
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      setInitialRender(true);
+      const timer = setTimeout(() => {
+        setInitialRender(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Handle the click on the collapsible item
+  const handleCollapsibleClick = (e) => {
+    e.preventDefault();
+    if (!open) {
+      // If sidebar is collapsed, first expand the sidebar then open the collapsible
+      setOpen(true);
+      // Wait for the sidebar to expand before opening the collapsible
+      setTimeout(() => {
+        setIsCollapsibleOpen(!isCollapsibleOpen);
+      }, 300);
+    } else {
+      // If sidebar is already expanded, just toggle the collapsible
+      setIsCollapsibleOpen(!isCollapsibleOpen);
+    }
+  };
+
+  // Add classes based on sidebar state for proper icon positioning
+  const itemClassName = cn(
+    "sidebar__link",
+    initialRender
+      ? "sidebar__link--collapsed no-transition"
+      : open
+      ? "sidebar__link--expanded"
+      : "sidebar__link--collapsed",
+    className
+  );
+
+  // Add an inline style for consistent positioning
+  const itemStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: initialRender ? "center" : open ? "flex-start" : "center",
+    cursor: "pointer",
+  };
+
+  return (
+    <div className="sidebar__collapsible">
+      <div
+        className={cn(
+          itemClassName,
+          isCollapsibleOpen && "sidebar__link--active"
+        )}
+        style={itemStyle}
+        onClick={handleCollapsibleClick}
+      >
+        {item.icon}
+        <motion.span
+          initial={{ opacity: initialRender ? 0 : open ? 1 : 0 }}
+          animate={{
+            display: initialRender ? "none" : open ? "inline-block" : "none",
+            opacity: initialRender ? 0 : open ? 1 : 0,
+          }}
+          transition={{ duration: 0 }}
+          className="sidebar__link-text"
+        >
+          {item.title}
+        </motion.span>
+        {open && (
+          <ChevronRight
+            className={cn(
+              "ml-auto transition-transform duration-200",
+              isCollapsibleOpen && "rotate-90"
+            )}
+          />
+        )}
+      </div>
+      {open && isCollapsibleOpen && (
+        <div className="sidebar__collapsible-content">
+          {item.items?.map((subItem, idx) => (
+            <Link
+              key={idx}
+              href={subItem.url}
+              className="sidebar__collapsible-item"
+            >
+              <span>{subItem.title}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
