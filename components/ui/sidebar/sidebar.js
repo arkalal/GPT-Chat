@@ -123,24 +123,39 @@ export const DesktopSidebar = ({ className, children, ...props }) => {
   const handleMouseLeave = (e) => {
     if (initialRender) return;
 
-    // Check if moving to the logo element
-    const logoElement = document.querySelector(".sidebar-chat__logo");
-    if (
-      logoElement &&
-      (logoElement.contains(e.relatedTarget) || logoElement === e.relatedTarget)
-    ) {
-      // Don't close if hovering over logo
-      return;
-    }
+    // Don't rely on document.querySelector which can cause hydration issues
+    // Instead, check if data attributes or other more reliable methods
+    try {
+      // If the related target doesn't exist, we should close the sidebar
+      if (!e.relatedTarget) {
+        setOpen(false);
+        return;
+      }
 
-    // Clear any existing timeout
-    if (mouseLeaveTimeoutRef.current) {
-      clearTimeout(mouseLeaveTimeoutRef.current);
-      mouseLeaveTimeoutRef.current = null;
-    }
+      // Check if moving to an element with the logo class
+      // Using relatedTarget's classList instead of document.querySelector
+      const isLogoElement =
+        e.relatedTarget.classList?.contains("sidebar-chat__logo") ||
+        e.relatedTarget.closest?.(".sidebar-chat__logo");
 
-    // Collapse immediately
-    setOpen(false);
+      if (isLogoElement) {
+        // Don't close if hovering over logo
+        return;
+      }
+
+      // Clear any existing timeout
+      if (mouseLeaveTimeoutRef.current) {
+        clearTimeout(mouseLeaveTimeoutRef.current);
+        mouseLeaveTimeoutRef.current = null;
+      }
+
+      // Collapse immediately
+      setOpen(false);
+    } catch (error) {
+      // If any error occurs during this check, default to closing the sidebar
+      console.error("Error in handleMouseLeave:", error);
+      setOpen(false);
+    }
   };
 
   return (

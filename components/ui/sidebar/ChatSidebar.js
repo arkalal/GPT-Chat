@@ -15,61 +15,27 @@ import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import "./ChatSidebar.scss";
 
-// Add an inline script to handle initial state
-// This ensures the sidebar is in the collapsed state before any styles are applied
-if (typeof document !== "undefined") {
-  // Stronger approach to disable transitions on initial load
-  document.documentElement.classList.add("disable-sidebar-transition");
+// Remove the inline script that manipulates document directly
+// and replace with a React-friendly approach using useEffect
 
-  // Add a style element to disable transitions right away
-  const style = document.createElement("style");
-  style.textContent = `
-    /* Prevent all movement during page load */
-    .sidebar-chat__icon-container,
-    .sidebar__link,
-    .sidebar-chat__icon,
-    .sidebar__link-text,
-    .sidebar__desktop, 
-    .sidebar-chat,
-    .sidebar-chat__body {
-      transition: none !important;
-      transform: none !important;
-      animation: none !important;
-    }
-    
-    /* Fix icon position on page load */
-    .sidebar-chat__icon-container {
-      position: relative !important;
-      left: 0 !important;
-      margin: 0 auto !important;
-      transform: none !important;
-    }
-    
-    /* Ensure sidebar starts in collapsed state */
-    .sidebar__desktop {
-      width: 60px !important;
-    }
-    
-    /* Ensure links are properly centered initially */
-    .sidebar__link {
-      justify-content: center !important;
-      padding: 0.75rem 1rem !important;
-    }
-  `;
-  style.id = "disable-sidebar-transitions-style";
-  document.head.appendChild(style);
+// Client-side only component to handle transition styling
+const ClientOnly = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
 
-  // Remove the class and style after a longer delay to ensure everything is fully loaded
-  setTimeout(() => {
-    document.documentElement.classList.remove("disable-sidebar-transition");
-    const styleElement = document.getElementById(
+  useEffect(() => {
+    setMounted(true);
+
+    // Clean up style element if it exists (from previous code)
+    const existingStyle = document.getElementById(
       "disable-sidebar-transitions-style"
     );
-    if (styleElement) {
-      styleElement.remove();
+    if (existingStyle) {
+      existingStyle.remove();
     }
-  }, 1200); // Increased timeout for reliable loading
-}
+  }, []);
+
+  return mounted ? children : null;
+};
 
 export function ChatSidebar() {
   const pathname = usePathname();
@@ -199,44 +165,46 @@ export function ChatSidebar() {
   ];
 
   return (
-    <div
-      ref={sidebarRef}
-      className={`sidebar-chat ${open ? "open" : ""} ${
-        initialRender ? "no-transition" : ""
-      }`}
-    >
-      <Sidebar open={open} setOpen={setOpen} animate={!initialRender}>
-        <SidebarBody className="sidebar-chat__body">
-          <div className="sidebar-chat__content">
-            {open ? <Logo setOpen={setOpen} /> : <LogoIcon />}
-            <div className="sidebar-chat__links">
-              {links.map((link, idx) => (
-                <SidebarLink
-                  key={idx}
-                  link={link}
-                  className={
-                    pathname === link.href ? "sidebar__link--active" : ""
-                  }
-                />
-              ))}
+    <ClientOnly>
+      <div
+        ref={sidebarRef}
+        className={`sidebar-chat ${open ? "open" : ""} ${
+          initialRender ? "no-transition" : ""
+        }`}
+      >
+        <Sidebar open={open} setOpen={setOpen} animate={!initialRender}>
+          <SidebarBody className="sidebar-chat__body">
+            <div className="sidebar-chat__content">
+              {open ? <Logo setOpen={setOpen} /> : <LogoIcon />}
+              <div className="sidebar-chat__links">
+                {links.map((link, idx) => (
+                  <SidebarLink
+                    key={idx}
+                    link={link}
+                    className={
+                      pathname === link.href ? "sidebar__link--active" : ""
+                    }
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <SidebarLink
-              link={{
-                label: "Logout",
-                href: "/logout",
-                icon: (
-                  <motion.div className="sidebar-chat__icon-container">
-                    <LogOut className="sidebar-chat__icon" />
-                  </motion.div>
-                ),
-              }}
-            />
-          </div>
-        </SidebarBody>
-      </Sidebar>
-    </div>
+            <div>
+              <SidebarLink
+                link={{
+                  label: "Logout",
+                  href: "/logout",
+                  icon: (
+                    <motion.div className="sidebar-chat__icon-container">
+                      <LogOut className="sidebar-chat__icon" />
+                    </motion.div>
+                  ),
+                }}
+              />
+            </div>
+          </SidebarBody>
+        </Sidebar>
+      </div>
+    </ClientOnly>
   );
 }
 
